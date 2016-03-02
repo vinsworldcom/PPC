@@ -1,0 +1,21 @@
+# IPv6 PIM Register
+
+if (!(MAC6_GW && MAC_SRC && IPv6_SRC)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::IPv6 qw(:consts);
+use Net::Frame::Layer::IPv6::HopByHop;
+use Net::Frame::Layer::PIM qw(:consts);
+
+$ether6 = ETHER6;
+$ipv6   = IPv6(dst=>NF_PIM_ALLPIMRTRS_v6,hopLimit=>1,nextHeader=>NF_IPv6_PROTOCOL_IPv6HOPBYHOP);
+$option = Net::Frame::Layer::IPv6::Option->new(type=>5,length=>2,value=>H2S '0000');
+$PadN   = Net::Frame::Layer::IPv6::Option->new();
+$hop    = Net::Frame::Layer::IPv6::HopByHop->new(nextHeader=>NF_IPv6_PROTOCOL_PIM,options=>[$option,$PadN]);
+$pim    = PIM(type=>NF_PIM_TYPE_REGISTER,payload=>H2S '000000001111111111111111');
+$packet = packet $ether6,$ipv6,$hop,$pim;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

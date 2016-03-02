@@ -1,0 +1,49 @@
+# IPv6 ICMPv6 neighbor solicitation
+
+if (!(MAC_GW && MAC_SRC && IPv6_SRC_LL)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::IPv6Addr;
+use Net::Frame::Layer::IPv6 qw(:consts);
+use Net::Frame::Layer::ICMPv6 qw(:consts);
+use Net::Frame::Layer::ICMPv6::NeighborSolicitation;
+
+print "What host to solicit? ";
+my $name = <STDIN>;
+chomp $name;
+print "\n";
+
+$name = $name || 'ipv6.google.com';
+
+if (!($name = getHostIpv6Addr($name))) { return; }
+
+# START:  Create solicited node mac / IPv6
+my $addr = Net::IPv6Addr->new($name);
+my (undef, undef, undef, undef, @addr) = split /:/, $addr->to_string_preferred;
+
+my $mac;
+for (@addr) {
+    $mac .= sprintf "0" x (4-length($_)) . "$_:"
+}
+$mac =~ s/:$//;
+$addr = "ff02::1:ff" . substr($mac, -7);
+$mac = "33:33:ff:" . substr($mac, -7, 5) . ":" . substr($mac, -2);
+# END:  Create solicited node mac / IPv6
+
+$ether  = ETHER(dst=>$mac,type=>NF_ETH_TYPE_IPv6);
+$ipv6   = IPv6(src=>IPv6_SRC_LL,dst=>$addr,nextHeader=>NF_IPv6_PROTOCOL_ICMPv6);
+$icmpv6 = ICMPv6(NF_ICMPv6_TYPE_NEIGHBORSOLICITATION);
+
+  my $value = MAC_SRC;
+     $value =~ s/://g;
+
+$option = Net::Frame::Layer::ICMPv6::Option->new(type=>1,value=>pack "H*", $value);
+$option->computeLengths;
+$option->pack;
+$ns     = Net::Frame::Layer::ICMPv6::NeighborSolicitation->new(targetAddress=>$name,options=>[$option]);
+$packet = packet $ether,$ipv6,$icmpv6,$ns;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

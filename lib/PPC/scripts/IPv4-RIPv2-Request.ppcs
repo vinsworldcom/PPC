@@ -1,0 +1,18 @@
+# IPv4 RIPv2 Request full route table
+
+if (!(MAC_SRC && IPv4_SRC)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::RIP qw(:consts);
+
+$ether  = ETHER(dst=>NF_RIP_V2_DEST_HWADDR);
+$ipv4   = IPv4(dst=>NF_RIP_V2_DEST_ADDR,protocol=>NF_IPv4_PROTOCOL_UDP);
+$udp    = UDP(src=>NF_RIP_V2_DEST_PORT,dst=>NF_RIP_V2_DEST_PORT);
+$rip    = Net::Frame::Layer::RIP->new();
+$ripv2  = Net::Frame::Layer::RIP::v2->full;
+$packet = packet $ether,$ipv4,$udp,$rip,$ripv2;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

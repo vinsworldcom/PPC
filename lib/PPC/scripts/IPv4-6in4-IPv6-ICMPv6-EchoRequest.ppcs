@@ -1,0 +1,41 @@
+# IPv6 in IPv4 tunnel ICMPv6 echo request
+
+if (!(MAC_GW && MAC_SRC && IPv4_SRC && IPv6_SRC)) {
+    print "Run `interface' command first\n";
+    return
+}
+
+use Net::Frame::Layer::IPv6   qw(:consts);
+use Net::Frame::Layer::ICMPv6 qw(:consts);
+use Net::Frame::Layer::ICMPv6::Echo;
+
+print "IPv4 remote tunnel endpoint? ";
+my $v4rname = <STDIN>;
+chomp $v4rname;
+
+print "IPv4 local  tunnel endpoint? ";
+my $v4lname = <STDIN>;
+chomp $v4lname;
+
+print "What IPv6 host to ping? ";
+my $v6name = <STDIN>;
+chomp $v6name;
+print "\n";
+
+$v4rname = $v4rname || 'www.google.com';
+$v4lname = $v4lname || IPv4_SRC;
+$v6name  = $v6name  || 'ipv6.google.com';
+
+if (!( $v4lname = getHostIpv4Addr( $v4lname ) ) ) { return; }
+if (!( $v4rname = getHostIpv4Addr( $v4rname ) ) ) { return; }
+if (!( $v6name  = getHostIpv6Addr( $v6name ) ) )  { return; }
+
+$ether  = ETHER;
+$ipv4   = IPv4(src=>$v4lname,dst=>$v4rname,protocol=>NF_IPv4_PROTOCOL_IPv6);
+$ipv6   = IPv6(dst=>$v6name,nextHeader=>NF_IPv4_PROTOCOL_ICMPv6);
+$icmpv6 = ICMPv6;
+$echo   = ECHOv6('echo');
+$packet = packet $ether,$ipv4,$ipv6,$icmpv6,$echo;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

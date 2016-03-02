@@ -1,0 +1,140 @@
+# IPv4 ICMPv4 echo request
+
+if (!(MAC_GW && MAC_SRC && IPv4_SRC)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::ICMPv4 qw(:consts);
+use Net::Frame::Layer::ICMPv4::Echo;
+
+print "\nShankar & Paxson Fragment Test\n\n";
+print "What host to ping? ";
+my $name = <STDIN>;
+chomp $name;
+print "\n";
+
+$name = $name || 'www.google.com';
+
+if (!($name = getHostIpv4Addr($name))) { return; }
+
+$ether  = ETHER;
+$icmpv4 = ICMPv4;
+
+my $id = getRandom16bitsInt();
+my @payloads;
+
+$ipv4s[0] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_ICMPv4,
+    flags    => NF_IPv4_MORE_FRAGMENT
+);
+$payloads[0] = '111111111111111111111111';
+$echos[0] = ECHOv4(
+    identifier     => 1,
+    sequenceNumber => 1,
+    payload        => $payloads[0]
+);
+
+$ipv4s[1] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_ICMPv4,
+    flags    => NF_IPv4_MORE_FRAGMENT,
+    offset   => 5
+);
+$payloads[1] = '2222222222222222';
+$echos[1] = ECHOv4(
+    identifier     => 1,
+    sequenceNumber => 1,
+    payload        => $payloads[1]
+);
+
+$ipv4s[2] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_ICMPv4,
+    flags    => NF_IPv4_MORE_FRAGMENT,
+    offset   => 7
+);
+$payloads[2] = '333333333333333333333333';
+$echos[2] = ECHOv4(
+    identifier     => 1,
+    sequenceNumber => 1,
+    payload        => $payloads[2]
+);
+
+$ipv4s[3] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_ICMPv4,
+    flags    => NF_IPv4_MORE_FRAGMENT,
+    offset   => 2
+);
+$payloads[3] = '44444444444444444444444444444444';
+$echos[3] = ECHOv4(
+    identifier     => 1,
+    sequenceNumber => 1,
+    payload        => $payloads[3]
+);
+
+$ipv4s[4] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_ICMPv4,
+    flags    => NF_IPv4_MORE_FRAGMENT,
+    offset   => 7
+);
+$payloads[4] = '555555555555555555555555';
+$echos[4] = ECHOv4(
+    identifier     => 1,
+    sequenceNumber => 1,
+    payload        => $payloads[4]
+);
+
+$ipv4s[5] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_ICMPv4,
+    offset   => 10
+);
+$payloads[5] = '666666666666666666666666';
+$echos[5] = ECHOv4(
+    identifier     => 1,
+    sequenceNumber => 1,
+    payload        => $payloads[5]
+);
+
+$packets[0] = packet $ether,$ipv4s[0],$icmpv4,$echos[0];
+$packets[1] = packet $ether,$ipv4s[1],$echos[1];
+$packets[2] = packet $ether,$ipv4s[2],$echos[2];
+$packets[3] = packet $ether,$ipv4s[3],$echos[3];
+$packets[4] = packet $ether,$ipv4s[4],$echos[4];
+$packets[5] = packet $ether,$ipv4s[5],$echos[5];
+
+my $upperLayerLen = Net::Frame::Layer::ICMPv4->getLength;
+
+$ipv4s[1]->length($ipv4s[1]->length - $upperLayerLen);
+$ipv4s[1]->computeChecksums;
+$ipv4s[1]->pack;
+$ipv4s[2]->length($ipv4s[2]->length - $upperLayerLen);
+$ipv4s[2]->computeChecksums;
+$ipv4s[2]->pack;
+$ipv4s[3]->length($ipv4s[3]->length - $upperLayerLen);
+$ipv4s[3]->computeChecksums;
+$ipv4s[3]->pack;
+$ipv4s[4]->length($ipv4s[4]->length - $upperLayerLen);
+$ipv4s[4]->computeChecksums;
+$ipv4s[4]->pack;
+$ipv4s[5]->length($ipv4s[5]->length - $upperLayerLen);
+$ipv4s[5]->computeChecksums;
+$ipv4s[5]->pack;
+
+$packets[1] = $ether->raw . $ipv4s[1]->raw . $payloads[1];
+$packets[2] = $ether->raw . $ipv4s[2]->raw . $payloads[2];
+$packets[3] = $ether->raw . $ipv4s[3]->raw . $payloads[3];
+$packets[4] = $ether->raw . $ipv4s[4]->raw . $payloads[4];
+$packets[5] = $ether->raw . $ipv4s[5]->raw . $payloads[5];
+
+print "\n\nType:\n\n  sendp \\\@packets\n\nto execute\n";

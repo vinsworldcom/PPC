@@ -1,0 +1,19 @@
+# IPv6 RIPng Request full route table
+
+if (!(MAC_SRC && IPv6_SRC_LL)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::IPv6 qw(:consts);
+use Net::Frame::Layer::RIPng qw(:consts);
+
+$ether  = ETHER(dst=>NF_RIPNG_DEST_HWADDR,type=>NF_ETH_TYPE_IPv6);
+$ipv6   = IPv6(src=>IPv6_SRC_LL,dst=>NF_RIPNG_DEST_ADDR,nextHeader=>NF_IPv6_PROTOCOL_UDP);
+$udp    = UDP(NF_RIPNG_DEST_PORT);
+$rip    = Net::Frame::Layer::RIPng->new();
+$ripng  = Net::Frame::Layer::RIPng::v1->full;
+$packet = packet $ether,$ipv6,$udp,$rip,$ripng;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

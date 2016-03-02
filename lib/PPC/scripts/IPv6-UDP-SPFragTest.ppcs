@@ -1,0 +1,146 @@
+# IPv6 UDP
+
+if (!(MAC6_GW && MAC_SRC && IPv6_SRC)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::IPv6 qw(:consts);
+use Net::Frame::Layer::IPv6::Fragment;
+
+print "\nShankar & Paxson Fragment Test\n\n";
+print "What host to sendto? ";
+my $name = <STDIN>;
+chomp $name;
+print "What port to sendto? ";
+my $port = <STDIN>;
+chomp $port;
+print "What reassembly policy?\n  (first, last, linux, bsd, bsd-right) [bsd] ";
+my $rp = <STDIN>;
+chomp $rp;
+print "\n";
+
+$name = $name || 'ipv6.google.com';
+$port = $port || 137;
+
+if (!($name = getHostIpv6Addr($name))) { return }
+if (($port !~ /^\d{1,5}$/) || (($port < 0) || ($port > 65535))) { 
+    print "Not a valid port\n";
+    return;
+}
+
+# Use 1 of the following payloads to generate the correct UDP checksum.
+# This is based on what the reassembled packet will look like.
+
+    # Reassembled using policy: BSD (AIX, FreeBSD, HPUX, VMS)
+my $payload = '111111111111111111111111444444444444444422222222333333333333333333333333666666666666666666666666';
+
+if      ($rp =~ /first/i) {
+    # Reassembled using policy: First (Windows, SUN, MacOS, HPUX)
+   $payload = '111111111111111111111111444444442222222222222222333333333333333333333333666666666666666666666666';
+   print "Using reassembly policy 'first'\n"
+
+} elsif ($rp =~ /last/i) {
+    # Reassembled using policy: Last/RFC791 (Cisco)
+   $payload = '111111114444444444444444444444444444444422222222555555555555555555555555666666666666666666666666';
+   print "Using reassembly policy 'last'\n"
+
+} elsif ($rp =~ /linux/i) {
+    # Reassembled using policy: Linux (Linux)
+   $payload = '111111111111111111111111444444444444444422222222555555555555555555555555666666666666666666666666';
+   print "Using reassembly policy 'linux'\n"
+
+} elsif ($rp =~ /bsd\-right/i) {
+    # Reassembled using policy: BSD-Right (HP Jet Direct)
+   $payload = '111111114444444444444444444444442222222222222222555555555555555555555555666666666666666666666666';
+   print "Using reassembly policy 'bsd-right'\n"
+
+} else { print "Using reassembly policy 'bsd'\n" }
+
+
+$ether  = ETHER(NF_ETH_TYPE_IPv6);
+$ipv6   = IPv6(dst=>$name,nextHeader=>NF_IPv6_PROTOCOL_UDP);
+$udp    = UDP(
+    dst     => $port,
+    payload => $payload
+);
+
+$packet = packet $ether,$ipv6,$udp;
+
+# Update IPv6 nextHeader
+$ipv6->nextHeader(NF_IPv6_PROTOCOL_IPv6FRAGMENT);
+$ipv6->pack;
+
+my @frags;
+$frags[0] = Net::Frame::Layer::IPv6::Fragment->new(
+    nextHeader     => NF_IPv6_PROTOCOL_UDP,
+    fragmentOffset => 0,
+    mFlag          => 1
+);
+$frags[1] = Net::Frame::Layer::IPv6::Fragment->new(
+    nextHeader     => NF_IPv6_PROTOCOL_UDP,
+    fragmentOffset => 5,
+    mFlag          => 1
+);
+$frags[2] = Net::Frame::Layer::IPv6::Fragment->new(
+    nextHeader     => NF_IPv6_PROTOCOL_UDP,
+    fragmentOffset => 7,
+    mFlag          => 1
+);
+$frags[3] = Net::Frame::Layer::IPv6::Fragment->new(
+    nextHeader     => NF_IPv6_PROTOCOL_UDP,
+    fragmentOffset => 2,
+    mFlag          => 1
+);
+$frags[4] = Net::Frame::Layer::IPv6::Fragment->new(
+    nextHeader     => NF_IPv6_PROTOCOL_UDP,
+    fragmentOffset => 7,
+    mFlag          => 1
+);
+$frags[5] = Net::Frame::Layer::IPv6::Fragment->new(
+    nextHeader     => NF_IPv6_PROTOCOL_UDP,
+    fragmentOffset => 10,
+    mFlag          => 0
+);
+$_->pack for (@frags);
+
+my $upperLayerLen = Net::Frame::Layer::UDP->getLength;
+my $fragLen = Net::Frame::Layer::IPv6::Fragment->getLength;
+
+$payload = '111111111111111111111111';
+# Frag-EH + UDP + payload
+$ipv6->payloadLength($upperLayerLen + $fragLen + length($payload));
+$ipv6->pack;
+$packets[0] = $ether->raw . $ipv6->raw . $frags[0]->raw . $udp->raw . $payload;
+
+$payload = '2222222222222222';
+# Frag-EH + payload
+$ipv6->payloadLength($fragLen + length($payload));
+$ipv6->pack;
+$packets[1] = $ether->raw . $ipv6->raw . $frags[1]->raw . $payload;
+
+$payload = '333333333333333333333333';
+# Frag-EH + payload
+$ipv6->payloadLength($fragLen + length($payload));
+$ipv6->pack;
+$packets[2] = $ether->raw . $ipv6->raw . $frags[2]->raw . $payload;
+
+$payload = '44444444444444444444444444444444';
+# Frag-EH + payload
+$ipv6->payloadLength($fragLen + length($payload));
+$ipv6->pack;
+$packets[3] = $ether->raw . $ipv6->raw . $frags[3]->raw . $payload;
+
+$payload = '555555555555555555555555';
+# Frag-EH + payload
+$ipv6->payloadLength($fragLen + length($payload));
+$ipv6->pack;
+$packets[4] = $ether->raw . $ipv6->raw . $frags[4]->raw . $payload;
+
+$payload = '666666666666666666666666';
+# Frag-EH + payload
+$ipv6->payloadLength($fragLen + length($payload));
+$ipv6->pack;
+$packets[5] = $ether->raw . $ipv6->raw . $frags[5]->raw . $payload;
+
+print "\n\nType:\n\n  sendp \\\@packets\n\nto execute\n";

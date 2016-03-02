@@ -1,0 +1,38 @@
+# ARP request
+
+if (!(MAC_SRC && IPv4_SRC && IPv4_GW)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Getopt::Long;
+my %opt;
+GetOptions(
+    'i|ip=s'  => \$opt{ip},
+    'r|recv!' => \$opt{r},
+    's|send!' => \$opt{s},
+) or die "\n";
+$opt{s} = $opt{s} || 0;
+$opt{r} = $opt{r} || 0;
+
+if ( !defined $opt{ip} ) {
+    print "What IP to get MAC for? ";
+    $opt{ip} = <STDIN>;
+    chomp $opt{ip};
+    print "\n";
+}
+$opt{ip} = $opt{ip} || IPv4_GW;
+if (!( $opt{ip} = getHostIpv4Addr( $opt{ip} ) ) ) { return; }
+
+$ether  = ETHER(dst=>NF_ETH_ADDR_BROADCAST,type=>NF_ETH_TYPE_ARP);
+$arp    = ARP($opt{ip});
+$packet = packet $ether,$arp;
+
+if ( $opt{s} ) {
+    sendp $packet;
+} elsif ( $opt{r} ) {
+    $r = srp $packet;
+} else {
+    decode $packet;
+    print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";
+}

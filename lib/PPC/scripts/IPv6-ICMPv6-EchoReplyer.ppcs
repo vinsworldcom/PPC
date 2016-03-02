@@ -1,0 +1,40 @@
+# IPv6 ICMPv6 echo reply
+
+my $STOP = 0;
+local $SIG{'INT'} = sub {
+    $STOP = 1;
+};
+
+while (!$STOP) {
+    my $r = sniff count=>1,filter=>"icmp6 and (ip6[40] == 0x80)";
+
+    print "----REQUEST----\n";
+    print $r->print . "\n";
+
+    my $e = ETHER(
+        src  => $r->ref->{ETH}->dst,
+        dst  => $r->ref->{ETH}->src,
+        type => NF_ETH_TYPE_IPv6
+    );
+    my $ipv6 = IPv6(
+        src        => $r->ref->{IPv6}->dst,
+        dst        => $r->ref->{IPv6}->src,
+        nextHeader => NF_IPv6_PROTOCOL_ICMPv6,
+#       hopLimit   => 120        
+    );
+    my $icmpv6 = ICMPv6(
+        type => NF_ICMPv6_TYPE_ECHO_REPLY
+    );
+    my $echo = ECHOv6(
+        identifier     => $r->ref->{"ICMPv6::Echo"}->identifier,
+        sequenceNumber => $r->ref->{"ICMPv6::Echo"}->sequenceNumber,
+        payload        => $r->ref->{"ICMPv6::Echo"}->payload
+    );
+
+    my $p = packet $e,$ipv6,$icmpv6,$echo;
+
+    print "----REPLY----\n";
+    decode $p;
+
+    sendp $p;
+}

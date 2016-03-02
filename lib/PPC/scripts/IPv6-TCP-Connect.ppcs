@@ -1,0 +1,63 @@
+# IPv6 TCP Connect
+
+if (!(MAC_GW && MAC_SRC && IPv6_SRC)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::IPv6 qw(:consts);
+
+print "What site to connect to? ";
+my $name = <STDIN>;
+chomp $name;
+print "What port to connect to? ";
+my $dst_port = <STDIN>;
+chomp $dst_port;
+print "\n";
+
+if (($dst_port !~ /^\d{1,5}$/) || ($dst_port < 1) || ($dst_port > 65535)) {
+    $dst_port = 80;
+}
+
+$name     = $name     || 'ipv6.google.com';
+$dst_port = $dst_port || 80;
+
+if (!($name = getHostIpv6Addr($name))) { return; }
+
+# SYN
+$ether  = ETHER(NF_ETH_TYPE_IPv6);
+$ipv6   = IPv6($name);
+$tcp    = TCP(dst=>$dst_port,options=>H2S('020405b40103030801010402'));
+
+$src_port    = $tcp->src;
+$src_seqnum  = $tcp->seq;
+
+$packet = packet $ether,$ipv6,$tcp;
+print "\n--SYN--\n";
+decode $packet;
+
+sendp $packet;
+
+# SYN ACK
+print "\n--SYN ACK--\n";
+$return = sniff (count=>1,call=>'sniff_decode',snap=>1500,filter=>"tcp src port $dst_port and tcp dst port $src_port");
+
+# ACK
+$tcp    = TCP(dst=>$dst_port,src=>$src_port,seq=>$src_seqnum+1,ack=>$return->ref->{TCP}->seq+1,flags=>NF_TCP_FLAGS_ACK);
+
+$packet = packet $ether,$ipv6,$tcp;
+#print "------------------------------\n";
+print "\n--ACK--\n";
+decode $packet;
+
+sendp $packet;
+
+####
+# Continuing Connection:  HTTP Example
+#$tcp    = TCP(dst=>$dst_port,src=>$src_port,seq=>$src_seqnum+1,ack=>$return->ref->{TCP}->seq+1,flags=>NF_TCP_FLAGS_ACK | NF_TCP_FLAGS_PSH,payload=>"GET /\n");
+#
+#$packet = packet $ether,$ipv6,$tcp;
+#print "\n--ACK-PSH (Request)--\n";
+#decode $packet;
+#
+#sendp $packet;

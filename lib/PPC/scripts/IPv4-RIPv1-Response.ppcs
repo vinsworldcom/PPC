@@ -1,0 +1,29 @@
+# IPv4 RIPv1 Response
+
+if (!(MAC_SRC && IPv4_SRC)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::RIP qw(:consts);
+
+print "What network to advertise? ";
+my $address = <STDIN>;
+chomp $address;
+print "What metric?               ";
+my $metric = <STDIN>;
+chomp $metric;
+print "\n";
+
+$address = $address || '10.0.0.0';
+$metric  = $metric  || 1;
+
+$ether  = ETHER(dst=>NF_RIP_V1_DEST_HWADDR);
+$ipv4   = IPv4(dst=>NF_RIP_V1_DEST_ADDR,protocol=>NF_IPv4_PROTOCOL_UDP);
+$udp    = UDP(src=>NF_RIP_V1_DEST_PORT,dst=>NF_RIP_V1_DEST_PORT);
+$rip    = Net::Frame::Layer::RIP->new(version=>1,command=>NF_RIP_V1_COMMAND_RESPONSE);
+$ripv1  = Net::Frame::Layer::RIP::v1->new(address=>$address,metric=>$metric);
+$packet = packet $ether,$ipv4,$udp,$rip,$ripv1;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

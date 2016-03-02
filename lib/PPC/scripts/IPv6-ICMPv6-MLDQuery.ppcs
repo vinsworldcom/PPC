@@ -1,0 +1,33 @@
+# IPv6 ICMPv6 MLD Query request
+
+if (!(MAC_GW && MAC_SRC && IPv6_SRC_LL && IPv6_GW)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::IPv6 qw(:consts);
+use Net::Frame::Layer::IPv6::HopByHop;
+use Net::Frame::Layer::IPv6::Option;
+use Net::Frame::Layer::ICMPv6 qw(:consts);
+use Net::Frame::Layer::ICMPv6::Echo;
+
+print "What host to query? ";
+my $name = <STDIN>;
+chomp $name;
+print "\n";
+
+$name = $name || IPv6_GW;
+
+if (!($name = getHostIpv6Addr($name))) { return; }
+
+$ether  = ETHER(NF_ETH_TYPE_IPv6);
+$ipv6   = IPv6(src=>IPv6_SRC_LL,dst=>$name,nextHeader=>NF_IPv6_PROTOCOL_IPv6HOPBYHOP,hopLimit=>1);
+$option = Net::Frame::Layer::IPv6::Option->new(type=>5,length=>2,value=>H2S"0000");
+$PadN   = Net::Frame::Layer::IPv6::Option->new();
+$hop    = Net::Frame::Layer::IPv6::HopByHop->new(nextHeader=>NF_IPv6_PROTOCOL_ICMPv6,options=>[$option,$PadN]);
+$icmpv6 = ICMPv6(130);
+$mld    = ECHOv6(identifier=>16,sequenceNumber=>0,payload=>inet6Aton('::'));
+$packet = packet $ether,$ipv6,$hop,$icmpv6,$mld;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

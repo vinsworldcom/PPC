@@ -1,0 +1,40 @@
+# IPv4 ICMPv4 echo reply
+
+my $STOP = 0;
+local $SIG{'INT'} = sub {
+    $STOP = 1;
+};
+
+while (!$STOP) {
+    my $r = sniff count=>1,filter=>"icmp[icmptype]=icmp-echo";
+
+    print "----REQUEST----\n";
+    print $r->print . "\n";
+
+    my $e = ETHER(
+        src  => $r->ref->{ETH}->dst,
+        dst  => $r->ref->{ETH}->src,
+        type => NF_ETH_TYPE_IPv4
+    );
+    my $ipv4 = IPv4(
+        src      => $r->ref->{IPv4}->dst,
+        dst      => $r->ref->{IPv4}->src,
+        protocol => NF_IPv4_PROTOCOL_ICMPv4,
+#       ttl      => 120        
+    );
+    my $icmpv4 = ICMPv4(
+        type => NF_ICMPv4_TYPE_ECHO_REPLY
+    );
+    my $echo = ECHOv4(
+        identifier     => $r->ref->{"ICMPv4::Echo"}->identifier,
+        sequenceNumber => $r->ref->{"ICMPv4::Echo"}->sequenceNumber,
+        payload        => $r->ref->{"ICMPv4::Echo"}->payload
+    );
+
+    my $p = packet $e,$ipv4,$icmpv4,$echo;
+
+    print "----REPLY----\n";
+    decode $p;
+
+    sendp $p;
+}

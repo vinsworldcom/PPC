@@ -1,0 +1,26 @@
+# IPv4 DNS query - AAAA
+
+if (!(MAC_GW && MAC_SRC && IPv4_SRC)) {
+    print "Run `interface' command first\n";
+    return
+}
+
+use Net::Frame::Layer::DNS qw(:consts);
+use Net::Frame::Layer::DNS::Question qw(:consts);
+
+print "What domain name to return AAAA record for? ";
+my $name = <STDIN>;
+chomp $name;
+print "\n";
+
+$name = $name || 'ipv6.google.com';
+
+$ether  = ETHER;
+$ipv4   = IPv4(dst=>'8.8.8.8',protocol=>NF_IPv4_PROTOCOL_UDP);
+$udp    = UDP(53);
+$dns    = Net::Frame::Layer::DNS->new();
+$query  = Net::Frame::Layer::DNS::Question->new(name=>$name,type=>NF_DNS_TYPE_AAAA);
+$packet = packet $ether,$ipv4,$udp,$dns,$query;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

@@ -1,0 +1,60 @@
+# IPv4 DNS reply
+
+use Net::Frame::Layer::DNS qw(:consts);
+use Net::Frame::Layer::DNS::RR qw(:consts);
+
+my $STOP = 0;
+local $SIG{'INT'} = sub {
+    $STOP = 1;
+};
+
+while (!$STOP) {
+    my $r = sniff count=>1,filter=>"udp dst port 53";
+
+    print "----REQUEST----\n";
+    print $r->print . "\n";
+
+    # Only continue for A requests
+    if ($r->ref->{'DNS::Question'}->type != NF_DNS_TYPE_A) {
+        printf "----NO REPLY---- (type = %i)\n", $r->ref->{'DNS::Question'}->type;
+        next
+    }
+
+    my $e = ETHER(
+        src  => $r->ref->{ETH}->dst,
+        dst  => $r->ref->{ETH}->src,
+        type => NF_ETH_TYPE_IPv4
+    );
+    my $ipv4 = IPv4(
+        src      => $r->ref->{IPv4}->dst,
+        dst      => $r->ref->{IPv4}->src,
+        protocol => NF_IPv4_PROTOCOL_UDP,
+#       ttl      => 120        
+    );
+    my $udp = UDP(
+        src => $r->ref->{UDP}->dst,
+        dst => $r->ref->{UDP}->src,
+    );
+    my $dns  = $r->ref->{DNS};
+       $dns->qr(1);
+       $dns->flags(0x18);
+       $dns->anCount(1);
+    my $ques = $r->ref->{'DNS::Question'};
+    my $rr = Net::Frame::Layer::DNS::RR->new(
+        name     => $ques->name,
+        type     => $ques->type,
+        class    => $ques->class,
+        ttl      => 64,
+        rdlength => 4
+    );
+    my $ans = Net::Frame::Layer::DNS::RR::A->new(
+        address => IPv4_SRC
+    );
+
+    my $p = packet $e,$ipv4,$udp,$dns,$ques,$rr,$ans;
+
+    print "----REPLY----\n";
+    decode $p;
+
+    sendp $p;
+}

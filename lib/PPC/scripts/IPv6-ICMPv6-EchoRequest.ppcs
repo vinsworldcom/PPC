@@ -1,0 +1,44 @@
+# IPv6 ICMPv6 echo request
+
+if (!(MAC6_GW && MAC_SRC && IPv6_SRC)) {
+    print "Run `interface' command first\n";
+    return
+}
+
+use Net::Frame::Layer::IPv6 qw(:consts);
+use Net::Frame::Layer::ICMPv6 qw(:consts);
+use Net::Frame::Layer::ICMPv6::Echo;
+
+use Getopt::Long;
+my %opt;
+GetOptions(
+    'i|ip=s'  => \$opt{ip},
+    'r|recv!' => \$opt{r},
+    's|send!' => \$opt{s},
+) or die "\n";
+$opt{s} = $opt{s} || 0;
+$opt{r} = $opt{r} || 0;
+
+if ( !defined $opt{ip} ) {
+    print "What host to ping? ";
+    $opt{ip} = <STDIN>;
+    chomp $opt{ip};
+    print "\n";
+}
+$opt{ip} = $opt{ip} || 'ipv6.google.com';
+if (!( $opt{ip} = getHostIpv6Addr( $opt{ip} ) ) ) { return; }
+
+$ether  = ETHER(NF_ETH_TYPE_IPv6);
+$ipv6   = IPv6(dst=>$opt{ip},nextHeader=>NF_IPv6_PROTOCOL_ICMPv6);
+$icmpv6 = ICMPv6;
+$echo   = ECHOv6('echo');
+$packet = packet $ether,$ipv6,$icmpv6,$echo;
+
+if ( $opt{s} ) {
+    sendp $packet;
+} elsif ( $opt{r} ) {
+    $r = srp $packet;
+} else {
+    decode $packet;
+    print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";
+}

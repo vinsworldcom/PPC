@@ -1,0 +1,16 @@
+# IPv4 PIM Register
+
+if (!(MAC_GW && MAC_SRC && IPv4_SRC)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::PIM qw(:consts);
+
+$ether  = ETHER;
+$ipv4   = IPv4(dst=>NF_PIM_ALLPIMRTRS_v4,ttl=>1,protocol=>NF_IPv4_PROTOCOL_PIM,options=>H2S '94040000');
+$pim    = PIM(type=>NF_PIM_TYPE_REGISTER,payload=>H2S '000000001111111111111111');
+$packet = packet $ether,$ipv4,$pim;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

@@ -1,0 +1,44 @@
+# IPv4 HSRP Active
+
+use Net::Frame::Layer::HSRP qw(:consts);
+
+my $STOP = 0;
+local $SIG{'INT'} = sub {
+    $STOP = 1;
+};
+
+my $r = sniff count=>1,filter=>"udp port 1985";
+
+print "----HSRP----\n";
+print $r->print . "\n";
+
+my $e = ETHER(
+    dst => NF_HSRP_ALLHSRPRTRS_MAC,
+);
+my $ipv4 = IPv4(
+    dst      => NF_HSRP_ALLHSRPRTRS,
+    protocol => NF_IPv4_PROTOCOL_UDP,
+    ttl      => 1        
+);
+my $udp = UDP(
+    src => NF_HSRP_UDP_PORT,
+    dst => NF_HSRP_UDP_PORT
+);
+my $hsrp = Net::Frame::Layer::HSRP->new(
+    state     => NF_HSRP_STATE_ACTIVE,
+    helloTime => $r->ref->{HSRP}->helloTime,
+    holdTime  => $r->ref->{HSRP}->holdTime,
+    priority  => $r->ref->{HSRP}->priority+10,
+    group     => $r->ref->{HSRP}->group,
+    authData  => $r->ref->{HSRP}->authData,
+    virtualIp => $r->ref->{HSRP}->virtualIp
+);
+
+my $p = packet $e,$ipv4,$udp,$hsrp;
+
+print "----REPLY----\n";
+decode $p;
+
+printf "\nSending state:Active HELLO at %i secs\n\nCTRL-C to quit\n", $r->ref->{HSRP}->helloTime;
+
+sendp $p, count=>-1,delay=>$r->ref->{HSRP}->helloTime;

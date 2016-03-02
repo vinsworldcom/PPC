@@ -1,0 +1,19 @@
+51,52c51
+<    my $len = ($length*8)-2;
+<    my ($value, $payload) = $self->SUPER::unpack("a$len a*", $tail)
+---
+>    my ($value, $payload) = $self->SUPER::unpack("a$length a*", $tail)
+64,72d62
+< sub computeLengths {
+<    my $self = shift;
+< 
+<    my $length = int($self->getLength/8);
+<    $self->length($length);
+< 
+<    return 1;
+< }
+< 
+113c103
+< This module implements the encoding and decoding of ICMPv6 Options.
+---
+> This modules implements the encoding and decoding of ICMPv6 Options.

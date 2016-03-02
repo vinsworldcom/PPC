@@ -1,0 +1,32 @@
+# Sniff callback to decode DNS
+#
+# Requires:
+#   Net::DHCP
+
+use strict;
+use warnings;
+use Data::Dumper;
+
+eval "use Net::DHCP::Packet";
+if($@) {
+    print "\nInstall:  FAILED\n\nRequires `Net::DHCP::Packet'\n";
+    return;
+}
+
+sub sniff_decode_DHCP {
+    my ($user_data, $header, $packet) = @_;
+
+    for (keys(%{$user_data->{packet}->ref})) {
+        # match UDP port 67
+        if ($_ eq 'UDP') {
+            if (($user_data->{packet}->ref->{UDP}->dst == 67) ||
+                ($user_data->{packet}->ref->{UDP}->src == 67)) {
+                decode ($user_data->{packet});
+                my $dhcp = Net::DHCP::Packet->new($user_data->{packet}->ref->{UDP}->payload);
+                print Dumper $dhcp;
+            }
+        }
+    }
+}
+
+print "\nInstall:  SUCCESSFUL\n\nCall with:\n\n  sniff (callback=>'sniff_decode_DHCP'[,...])\n";

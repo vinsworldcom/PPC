@@ -1,0 +1,34 @@
+# IPv6 RIPng Response
+
+if (!(MAC_SRC && IPv6_SRC_LL)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::IPv6 qw(:consts);
+use Net::Frame::Layer::RIPng qw(:consts);
+
+print "What prefix to advertise?  ";
+my $address = <STDIN>;
+chomp $address;
+print "What prefix length?        ";
+my $prefixLen = <STDIN>;
+chomp $prefixLen;
+print "What metric?               ";
+my $metric = <STDIN>;
+chomp $metric;
+print "\n";
+
+$address   = $address   || '2001:db8::';
+$prefixLen = $prefixLen || 64;
+$metric    = $metric    || 1;
+
+$ether  = ETHER(dst=>NF_RIPNG_DEST_HWADDR,type=>NF_ETH_TYPE_IPv6);
+$ipv6   = IPv6(src=>IPv6_SRC_LL,dst=>NF_RIPNG_DEST_ADDR,nextHeader=>NF_IPv6_PROTOCOL_UDP);
+$udp    = UDP(NF_RIPNG_DEST_PORT);
+$rip    = Net::Frame::Layer::RIPng->new(command=>NF_RIPNG_COMMAND_RESPONSE);
+$ripng  = Net::Frame::Layer::RIPng::v1->new(prefix=>$address,prefixLength=>$prefixLen,metric=>$metric);
+$packet = packet $ether,$ipv6,$udp,$rip,$ripng;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

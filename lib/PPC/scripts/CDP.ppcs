@@ -1,0 +1,58 @@
+# CDP
+
+if (!MAC_SRC) {
+    print "Run `interface' command first\n";
+    return
+}
+
+use Net::Frame::Layer::LLC;
+use Net::Frame::Layer::LLC::SNAP;
+use Net::Frame::Layer::CDP qw(:consts);
+
+$ether = ETHER(dst=>NF_CDP_MAC,type=>1);
+$llc   = Net::Frame::Layer::LLC->new(ig=>0,cr=>0);
+$snap  = Net::Frame::Layer::LLC::SNAP->new;
+$cdp   = Net::Frame::Layer::CDP->new;
+
+$cdp_device  = Net::Frame::Layer::CDP::DeviceId->new(deviceId=>'PPC');
+
+my @addrs;
+if (defined(IPv4_SRC)) {
+    push @addrs, Net::Frame::Layer::CDP::Address->new(address=>IPv4_SRC)
+}
+if (defined(IPv6_SRC)) {
+    push @addrs, Net::Frame::Layer::CDP::Address->ipv6Address(address=>IPv6_SRC)
+}
+$cdp_address = Net::Frame::Layer::CDP::Addresses->new(addresses=>[@addrs]);
+
+$cdp_iface   = Net::Frame::Layer::CDP::PortId->new(portId=>interface->name);
+$cdp_capabil = Net::Frame::Layer::CDP::Capabilities->new(capabilities=>0x29);
+$cdp_softver = Net::Frame::Layer::CDP::SoftwareVersion->new(softwareVersion=>'Cisco IOS Software, 3700 Software (C3725-ADVIPSERVICESK9-M), Version 12.4(15)T14, RELEASE SOFTWARE (fc2)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2010 by Cisco Systems, Inc.
+Compiled Tue 17-Aug-10 12:08 by prod_rel_team');
+$cdp_plat    = Net::Frame::Layer::CDP::Platform->new(platform=>"Cisco 3725");
+if (defined(IPv4_SRC)) {
+    $cdp_prefix = Net::Frame::Layer::CDP::IPNetPrefix->new(IpNetPrefix=>[IPv4_SRC . "/32"]);
+} else {
+    $cdp_prefix = Net::Frame::Layer::CDP::IPNetPrefix->new;
+}
+$cdp_vtp     = Net::Frame::Layer::CDP::VTPDomain->new(VtpDomain=>'VTP_DOMAIN');
+$cdp_natvlan = Net::Frame::Layer::CDP::NativeVlan->new(nativeVlan=>100);
+$cdp_duplex  = Net::Frame::Layer::CDP::Duplex->new;
+$cdp_vvlanr  = Net::Frame::Layer::CDP::VoipVlanReply->new(voipVlan=>200);
+$cdp_vvlanq  = Net::Frame::Layer::CDP::VoipVlanQuery->new(data=>'');
+$cdp_power   = Net::Frame::Layer::CDP::Power->new(power=>4000);
+if (defined(interface->mtu)) {
+    $cdp_mtu = Net::Frame::Layer::CDP::MTU->new(mtu=>interface->mtu)
+} else {
+    $cdp_mtu = Net::Frame::Layer::CDP::MTU->new
+}
+$cdp_trustmp = Net::Frame::Layer::CDP::TrustBitmap->new(trustBitmap=>NF_CDP_TYPE_TRUST_BITMAP_TRUSTED);
+$cdp_untrust = Net::Frame::Layer::CDP::UntrustedCos->new(untrustedCos=>5);
+$cdp_mgmtadd = Net::Frame::Layer::CDP::ManagementAddresses->new(addresses=>[@addrs]);
+
+$packet = packet $ether,$llc,$snap,$cdp,$cdp_device,$cdp_address,$cdp_iface,$cdp_capabil,$cdp_softver,$cdp_plat,$cdp_prefix,$cdp_vtp,$cdp_natvlan,$cdp_duplex,$cdp_vvlanr,$cdp_vvlanq,$cdp_power,$cdp_mtu,$cdp_trustmp,$cdp_untrust,$cdp_mgmtadd;
+decode $packet;
+
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

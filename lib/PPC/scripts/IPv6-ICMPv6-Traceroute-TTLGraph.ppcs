@@ -1,0 +1,71 @@
+use List::Util qw( min max );
+use PPC::Plugin::Gnuplot;
+use PPC::Plugin::Trace;
+
+print "What host to traceroute to? ";
+my $dest = <STDIN>;
+chomp $dest;
+print "\n";
+
+$dest = $dest || 'www.google.com';
+
+if (!($destip = getHostIpv6Addr($dest))) { return; }
+
+$trace = trace $destip,family=>'ipv6',proto=>'icmp';
+
+my (@xtics, @rttl, @sttl, $i);
+map {push @xtics, sprintf "\"%s\" %i", defined($_) ? [$_->layers]->[1]->src : "No Reply", $i++} $trace->recv;
+map {push @sttl, [$_->layers]->[1]->hopLimit} $trace->sent;
+map {push @rttl, defined($_) ? [$_->layers]->[1]->hopLimit : 0} $trace->recv;
+
+$tracechart = chart(
+    title=>"IPv6/ICMPv6 Traceroute hopLimit to $dest [$destip]",
+    rmargin=>7,
+    bmargin=>5,
+    legend=>{
+        position=>'outside top left',
+        height=>0.5,
+        border=>{
+            width=>1,
+            color=>'black'
+        }
+    },
+    xlabel=>'Hops', 
+    ylabel=>'Recv hopLimit',
+    y2label=>'Sent hopLimit',
+    yrange=>[min(@rttl),max(@rttl)],
+    y2range=>[0,$#sttl+1],
+    xtics=>{
+        labels=>\@xtics,
+        rotate=>75,
+        offset=>'first -0.15,graph -0.25',
+        font=>'Arial, 6'
+    },
+    y2tics=>[0,$#sttl+1],
+)->plot2d(
+    dataset(
+        title=>'Recv hopLimit',
+        ydata=>\@rttl,
+        style=>'linespoints'
+    ),
+    dataset(
+        title=>'',
+        ydata=>\@rttl,
+        using=>'1:2:2',
+        style=>'labels offset 1 font "Arial, 6"',
+    ),
+
+    dataset(
+        title=>'Sent hopLimit',
+        ydata=>\@sttl,
+        style=>'linespoints',
+        axes=>'x1y2'
+    ),
+    dataset(
+        title=>'',
+        ydata=>\@sttl,
+        using=>'1:2:2',
+        style=>'labels offset 1 font "Arial, 6"',
+        axes=>'x1y2'
+    )
+);

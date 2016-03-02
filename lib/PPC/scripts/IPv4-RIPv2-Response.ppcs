@@ -1,0 +1,37 @@
+# IPv4 RIPv2 Response
+
+if (!(MAC_SRC && IPv4_SRC)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::RIP qw(:consts);
+
+print "What network to advertise? ";
+my $address = <STDIN>;
+chomp $address;
+print "What mask?                 ";
+my $mask = <STDIN>;
+chomp $mask;
+print "What next hop?             ";
+my $nexthop = <STDIN>;
+chomp $nexthop;
+print "What metric?               ";
+my $metric = <STDIN>;
+chomp $metric;
+print "\n";
+
+$address = $address || '10.0.0.0';
+$mask    = $mask    || '255.0.0.0';
+$nexthop = $nexthop || IPv4_SRC;
+$metric  = $metric  || 1;
+
+$ether  = ETHER(dst=>NF_RIP_V2_DEST_HWADDR);
+$ipv4   = IPv4(dst=>NF_RIP_V2_DEST_ADDR,protocol=>NF_IPv4_PROTOCOL_UDP);
+$udp    = UDP(src=>NF_RIP_V2_DEST_PORT,dst=>NF_RIP_V2_DEST_PORT);
+$rip    = Net::Frame::Layer::RIP->new(command=>NF_RIP_V2_COMMAND_RESPONSE);
+$ripv2  = Net::Frame::Layer::RIP::v2->new(address=>$address,subnetMask=>$mask,nextHop=>$nexthop,metric=>$metric);
+$packet = packet $ether,$ipv4,$udp,$rip,$ripv2;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

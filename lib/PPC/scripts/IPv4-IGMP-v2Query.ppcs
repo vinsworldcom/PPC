@@ -1,0 +1,25 @@
+# IPv4 IGMP v2 query
+
+if (!(MAC_SRC && IPv4_SRC)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::IGMP qw(:consts);
+
+print "What group to query? ";
+my $name = <STDIN>;
+chomp $name;
+print "\n";
+
+$name = $name || '239.192.1.1';
+
+if (!getHostIpv4Addr($name)) { return; }
+
+$ether  = ETHER(dst=>NF_IGMP_ALLIGMPRTRS_MAC);
+$ipv4   = IPv4(dst=>NF_IGMP_ALLIGMPRTRS,ttl=>1,protocol=>NF_IPv4_PROTOCOL_IGMP,options=>H2S '94040000');
+$igmp   = IGMP(maxResp=>2,groupAddress=>$name);
+$packet = packet $ether,$ipv4,$igmp;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

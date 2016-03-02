@@ -1,0 +1,58 @@
+# ARP Responder
+
+if (!(MAC_SRC)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+printf "What MAC address to respond with [%s]? ", MAC_SRC;
+my $mac = <STDIN>;
+chomp $mac;
+print "\n";
+
+if ($mac ne "") {
+    if ($mac !~ /^([0-9a-f]{2}:){5}[0-9a-f]{2}$/i) {
+        printf "MAC `$mac' invalid, using %s\n", MAC_SRC;
+        $mac = undef;
+    }
+}
+
+$mac = $mac || MAC_SRC;
+
+my $STOP = 0;
+local $SIG{'INT'} = sub {
+    $STOP = 1;
+};
+
+while (!$STOP) {
+    # Capture ARP
+    my $r = sniff count=>1,filter=>'arp';
+
+    # Verify it's a request, not from us
+    if (($r->ref->{ARP}->opCode == NF_ARP_OPCODE_REQUEST) &&
+        (lc($r->ref->{ETH}->src) ne lc(MAC_SRC))) {
+
+        print "----REQUEST----\n";
+        print $r->print . "\n";
+
+        my $e = ETHER(
+            src  => $mac,
+            dst  => $r->ref->{ETH}->src,
+            type => NF_ETH_TYPE_ARP
+        );
+        my $a = ARP(
+            opCode => NF_ARP_OPCODE_REPLY,
+            src    => $mac,
+            srcIp  => $r->ref->{ARP}->dstIp,
+            dst    => $r->ref->{ARP}->src,
+            dstIp  => $r->ref->{ARP}->srcIp
+        );
+
+        my $p = packet $e,$a;
+
+        print "----REPLY----\n";
+        decode $p;
+
+        sendp $p;
+    }
+}

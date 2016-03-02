@@ -1,0 +1,27 @@
+# IPv6 DNS query - A
+
+if (!(MAC_GW && MAC_SRC && IPv6_SRC)) {
+    print "Run `interface' command first\n";
+    return;
+}
+
+use Net::Frame::Layer::IPv6 qw(:consts);
+use Net::Frame::Layer::DNS  qw(:consts);
+use Net::Frame::Layer::DNS::Question qw(:consts);
+
+print "What domain name to return A record for? ";
+my $name = <STDIN>;
+chomp $name;
+print "\n";
+
+$name = $name || 'www.google.com';
+
+$ether  = ETHER(NF_ETH_TYPE_IPv6);
+$ipv6   = IPv6(dst=>'2001:4860:4860::8888',nextHeader=>NF_IPv6_PROTOCOL_UDP);
+$udp    = UDP(53);
+$dns    = Net::Frame::Layer::DNS->new();
+$query  = Net::Frame::Layer::DNS::Question->new(name=>$name);
+$packet = packet $ether,$ipv6,$udp,$dns,$query;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";

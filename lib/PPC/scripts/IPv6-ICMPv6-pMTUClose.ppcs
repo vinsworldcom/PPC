@@ -1,0 +1,65 @@
+# IPv6 ICMPv6 Path MTU Packet Too Big replies
+
+use Net::Frame::Layer::ICMPv6::TooBig;
+
+print "What MTU to advertise? ";
+my $mtu = <STDIN>;
+chomp $mtu;
+print "What packet filter to capture? ";
+my $filter = <STDIN>;
+chomp $filter;
+print "\n";
+
+if (($mtu !~ /^\d{1,5}$/) || ($mtu < 0) || ($mtu > 65535)) {
+    print "Not a valid MTU, using IPv6 default 1280 ...\n";
+    $mtu = 1280;
+}
+
+my $STOP = 0;
+local $SIG{'INT'} = sub {
+    $STOP = 1;
+};
+
+while (!$STOP) {
+    my $r;
+    if ($filter ne '') {
+        if (!defined($r = sniff count=>1,continue=>0,filter=>"$filter")) {
+            return;
+        }
+    } else {
+        $r = sniff count=>1;
+    }
+
+    print "----REQUEST----\n";
+    print $r->print . "\n";
+
+    my $e = ETHER(
+        src  => $r->ref->{ETH}->dst,
+        dst  => $r->ref->{ETH}->src,
+        type => NF_ETH_TYPE_IPv6
+    );
+    my $ipv6 = IPv6(
+        src        => $r->ref->{IPv6}->dst,
+        dst        => $r->ref->{IPv6}->src,
+        nextHeader => NF_IPv6_PROTOCOL_ICMPv6,
+#       hopLimit   => 120        
+    );
+    my $icmpv6 = ICMPv6(
+        type    => NF_ICMPv6_TYPE_TOOBIG
+    );
+    my $toobig = Net::Frame::Layer::ICMPv6::TooBig->new(
+        mtu     => $mtu,
+        payload => substr $r->raw, 
+                          Net::Frame::Layer::ETH->getLength,        # Start after Ethernet
+                          1280 - Net::Frame::Layer::IPv6->getLength # Stop
+                               - Net::Frame::Layer::ICMPv6->getLength
+                               - Net::Frame::Layer::ICMPv6::TooBig->getLength
+    );
+    my $p = packet $e,$ipv6,$icmpv6,$toobig;
+    $p = substr $p, 0, 1280 + Net::Frame::Layer::ETH->getLength;
+    
+    print "----REPLY----\n";
+    decode $p;
+
+    sendp $p;
+}
