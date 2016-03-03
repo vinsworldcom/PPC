@@ -155,7 +155,7 @@ Net::Frame::Layer::TCP->new\(
 
 # scripts
 is( ref ( $ret = PPC::scripts() ), 'ARRAY', "scripts directory listing" );
-is( $#{$ret}, 47, "scripts found files" );
+is( $#{$ret}, 49, "scripts found files" );
 
 
 # wrpcap, rdpcap
