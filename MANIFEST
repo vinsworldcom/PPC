@@ -65,6 +65,8 @@ lib/PPC/scripts/IPv4-HSRP-Active.ppcs
 lib/PPC/scripts/IPv4-ICMPv4-EchoReplyer.ppcs
 lib/PPC/scripts/IPv4-ICMPv4-EchoRequest-SPFragTest.ppcs
 lib/PPC/scripts/IPv4-ICMPv4-EchoRequest.ppcs
+lib/PPC/scripts/IPv4-ICMPv4-FileXfer-Client.ppcs
+lib/PPC/scripts/IPv4-ICMPv4-FileXfer-Server.ppcs
 lib/PPC/scripts/IPv4-ICMPv4-Traceroute-TTLGraph.ppcs
 lib/PPC/scripts/IPv4-ICMPv4-Traceroute.ppcs
 lib/PPC/scripts/IPv4-IGMP-v2Query.ppcs
