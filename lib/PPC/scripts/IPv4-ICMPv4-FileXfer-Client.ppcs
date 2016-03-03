@@ -1,0 +1,72 @@
+# IPv4 ICMPv4 File Transfer Client
+
+if (!(MAC_GW && MAC_SRC && IPv4_SRC)) {
+    print "Run `interface' command first\n";
+    return
+}
+
+#use strict;
+use warnings;
+
+use MIME::Base64;
+use File::Basename;
+
+use Net::Frame::Layer::ICMPv4 qw(:consts);
+use Net::Frame::Layer::ICMPv4::Echo;
+
+my $CHUNK = 100;
+
+print "What host to transfer to? ";
+my $host = <STDIN>;
+chomp $host;
+
+print "What file to transfer? ";
+my $file = <STDIN>;
+chomp $file;
+print "\n";
+
+if (!( $host = getHostIpv4Addr( $host ) ) ) { return; }
+if ( !-e $file ) { warn "Cannot find file - `$file'"; return; }
+
+open my $fh, '<', $file;
+binmode $fh;
+my @lines = <$fh>;
+close $fh;
+my $lines = join '', @lines;
+$lines = encode_base64 $lines;
+
+my $ether  = ETHER;
+my $ipv4   = IPv4(dst=>$host,protocol=>NF_IPv4_PROTOCOL_ICMPv4);
+my $icmpv4 = ICMPv4();
+my $echo   = ECHOv4(
+    identifier=>0xaf17,
+    sequenceNumber=>0,
+    payload=>scalar fileparse( $file )
+);
+# filename
+my $packet = packet $ether,$ipv4,$icmpv4,$echo;
+sendp $packet;
+
+# contents
+my $c = 1;
+for (my $i = -1; $i <= (length $lines); $i+=$CHUNK) {
+
+    my $line = '';
+    $line = substr $lines, $i+1, $CHUNK;
+
+    $packet->payload3($line);
+    $packet->sequenceNumber3($c);
+    $packet->pack;
+    sendp $packet;    
+
+    if ( $c == 65534) {
+        $c = 1;
+    } else {
+        $c++;
+    }
+}
+
+# Done
+$packet->sequenceNumber3(65535);
+$packet->pack;
+sendp $packet;

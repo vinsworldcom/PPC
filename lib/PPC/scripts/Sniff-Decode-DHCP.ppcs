@@ -1,4 +1,4 @@
-# Sniff callback to decode DNS
+# Sniff callback to decode DHCP
 #
 # Requires:
 #   Net::DHCP

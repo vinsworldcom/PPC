@@ -1,0 +1,35 @@
+# IPv4 ICMPv4 File Transfer Server
+
+use strict;
+use warnings;
+
+use MIME::Base64;
+
+my $FILENAME = '';
+my $FILE = '';
+
+sub sniff_ICMPv4_file_xfer {
+    my ($user_data, $header, $packet) = @_;
+
+    if ($user_data->{packet}->identifier3 == 0xaf17) {
+        if ($user_data->{packet}->sequenceNumber3 == 0) {
+            $FILENAME = $user_data->{packet}->payload3;
+        } elsif ($user_data->{packet}->sequenceNumber3 == 65535) {
+            print "DONE!!!\nCTRL-C to exit\n";
+        } else {
+            $FILE .= $user_data->{packet}->payload3;
+        }
+    }
+}
+
+sniff (
+    callback=>'sniff_ICMPv4_file_xfer',
+    filter=>'icmp[icmptype] == 8'
+);
+
+open my $fh, '>', $FILENAME;
+binmode $fh;
+print $fh decode_base64 $FILE;
+close $fh;
+
+print "\nWrote `$FILENAME' to current directory\n";
