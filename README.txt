@@ -40,9 +40,10 @@ Net::Frame::Simple
 
   Plugins:
 
-  Chart::Gnuplot
-  Text::Table
   Array::Transpose
+  Chart::Gnuplot
+  Geo::IP
+  Text::Table
 
 Dependencies of all above modules should install automatically via CPAN.
 
