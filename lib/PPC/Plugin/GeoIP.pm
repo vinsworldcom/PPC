@@ -63,7 +63,7 @@ sub geoip {
                         $r->region,       $r->region_name,  $r->postal_code,
                         $r->latitude,     $r->longitude,    $r->metro_code,
                         $r->area_code
-                    );
+                    ) . "\n";
                 } else {
                     return $r;
                 }
