@@ -1,5 +1,5 @@
 package PerlApp::Shell::ModRefresh;
-# TODO:2016-03-01:vincen_m:POD
+
 ########################################################
 # AUTHOR = Michael Vincent
 # www.VinsWorld.com
