@@ -21,12 +21,18 @@ eval "use Net::Frame::Layer::IPv6 qw( :consts )";
 if ( !$@ ) {
     $HAVE_NFL_IPv6 = 1;
 }
+my $HAVE_Net_Telnet = 0;
+eval "use Net::Telnet";
+if ( !$@ ) {
+    $HAVE_Net_Telnet = 1;
+}
 
 use Exporter;
 
 our @EXPORT = qw (
   TCPConnect
   tcpconnect
+  tcpsr
 );
 
 our @ISA = qw ( PPC::Plugin PPC::Packet::SRP Exporter );
@@ -44,6 +50,7 @@ sub tcpconnect {
         family  => 4,
         packet  => undef,
         port    => 80,
+        socket  => 0,
         target  => undef,
         timeout => 2,
         verbose => 0
@@ -90,6 +97,12 @@ sub tcpconnect {
                 }
             } elsif (/^-?target$/i) {
                 $params{target} = $args{$_};
+            } elsif (/^-?socket$/i) {
+                if ( $HAVE_Net_Telnet ) {
+                    $params{socket} = $args{$_};
+                } else {
+                    PPC::_error( "Net::Telnet required for -socket option" );
+                }
             } elsif (/^-?time(?:out)?$/i) {
                 if ( ( $args{$_} =~ /^\d+$/ ) and ( $args{$_} > 0 ) ) {
                     $params{timeout} = $args{$_};
@@ -115,6 +128,23 @@ sub tcpconnect {
 
     if ( !defined $params{target} ) {
         PPC::_error( "No target" );
+    }
+
+    if ( $params{socket} ) {
+        my %hash = (
+            host => $params{target},
+            port => $params{port},
+        );
+        if ( ( ref $params{socket} ) eq 'HASH' ) {
+            for ( keys ( %{$params{socket}} ) ) {
+                $hash{$_} = $params{socket}->{$_};
+            }
+        }
+        my $telnet = Net::Telnet->new( %hash ) 
+          or PPC::_error( 
+            "Unable to connect to `$params{target}:$params{port}'" );
+        $hash{telnet} = $telnet;
+        return bless \%hash, __PACKAGE__ ;
     }
 
     my @layers;
@@ -234,6 +264,58 @@ sub tcpconnect {
     return bless \@connect, __PACKAGE__;
 }
 
+sub tcpsr {
+    my ( $self, $arg ) = @_;
+
+    if ( defined($arg) and ( $arg eq PPC::config('help_cmd') ) ) {
+        PPC::_help( __PACKAGE__,
+            "METHODS/tcpsr - send and receive data over TCP socket" );
+    }
+
+    if ( !defined $self->{telnet} ) {
+        PPC::_error( "Object not valid, use -socket option" );
+    }
+
+    my @rets;
+    my $retType = wantarray;
+    
+    if ( defined $arg ) {
+        $self->{telnet}->print($arg);
+        while (my $l = $self->{telnet}->getline) {
+            push @rets, $l;
+        }
+        if ( $self->{telnet}->eof ) {
+            $self->{telnet}->close;
+        }
+    } else {
+        PPC::_error( "data required" );
+    }
+
+    if ( !defined $retType ) {
+        print $_ for ( @rets )
+    } elsif ( $retType ) {
+        return @rets;
+    } else {
+        my $ret = join "", @rets;
+        return $ret;
+    }
+}
+
+sub close {
+    my ( $self, $arg ) = @_;
+
+    if ( defined($arg) and ( $arg eq PPC::config('help_cmd') ) ) {
+        PPC::_help( __PACKAGE__,
+            "METHODS/close - close TCP socket" );
+    }
+
+    if ( !defined $self->{telnet} ) {
+        PPC::_error( "Object not valid, use -socket option" );
+    }
+
+    $self->{telnet}->close;
+}
+
 1;
 
 __END__
@@ -288,11 +370,43 @@ For accessors to the return structure, see B<ACCESSORS>.
                or hash of attributes, e.g.,
                {tos1=>184,ttl1=>52}
   port       Ports to connect to                80
+  socket     (see below)                        (off)
   target     Target                             (none)
   timeout    Timeout for recv in seconds        2
   verbose    Show options as set (1 = on)       (off)
 
 Single option indicates B<target>.
+
+=over 4
+
+=item B<socket>
+
+Use Net::Telnet to create an actual socket over which data can be sent 
+with tcpsend() method.  To pass B<Net::Telnet> options, set the C<socket> 
+argument to a hash containing B<Net::Telnet> options.
+
+This allows the following methods to be called.
+
+=back
+
+=head1 METHODS
+
+=head2 tcpsr - send and receive data over TCP socket
+
+ $conn->tcpsr $data;
+
+If the C<socket> option is used in the C<tcpconnect> command, it creates a 
+real socket connection with B<Net::Telnet> to the specified target on the 
+specified port.  This method provides a way to send and recieve data over 
+the TCP connection.
+
+=head2 close - close TCP socket
+
+ $conn->close;
+
+If the C<socket> option is used in the C<tcpconnect> command, it creates a 
+real socket connection with B<Net::Telnet> to the specified target on the 
+specified port.  This method closes the socket.
 
 =head1 ACCESSORS
 
