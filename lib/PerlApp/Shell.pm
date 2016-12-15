@@ -726,6 +726,10 @@ This distribution comes with a script (installed to the default
 "bin" install directory) that not only demonstrates example uses but also
 provides functional execution.
 
+=head1 SEE ALSO
+
+L<PerlApp::Config>, L<PerlApp::Shell::ModRefresh>, L<PerlApp::Shell::LexPersist>
+
 =head1 LICENSE
 
 This software is released under the same terms as Perl itself.
