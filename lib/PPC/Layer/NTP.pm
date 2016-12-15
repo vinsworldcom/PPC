@@ -10,7 +10,8 @@ use warnings;
 
 my $minver_NTP = 1.02;
 my $HAVE_NTP   = 0;
-eval "use Net::Frame::Layer::NTP $minver_NTP qw( :consts )";
+my $useString = "use Net::Frame::Layer::NTP $minver_NTP qw( :consts )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_NTP = 1;
 }
@@ -54,7 +55,7 @@ sub NTP {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::NTP $minver_NTP qw( :consts )";
+eval $useString;
 1;
 
 __END__

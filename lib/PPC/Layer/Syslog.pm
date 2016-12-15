@@ -8,9 +8,10 @@ package PPC::Layer::Syslog;
 use strict;
 use warnings;
 
-my $minver_Syslog = 1.04;
+my $minver_Syslog = 1.05;
 my $HAVE_Syslog   = 0;
-eval "use Net::Frame::Layer::Syslog $minver_Syslog qw( :consts )";
+my $useString = "use Net::Frame::Layer::Syslog $minver_Syslog qw( :consts :subs )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_Syslog = 1;
 }
@@ -56,7 +57,7 @@ sub SYSLOG {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::Syslog $minver_Syslog qw( :consts )";
+eval $useString;
 1;
 
 __END__

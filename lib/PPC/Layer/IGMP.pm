@@ -10,7 +10,8 @@ use warnings;
 
 my $minver_IGMP = 1.01;
 my $HAVE_IGMP   = 0;
-eval "use Net::Frame::Layer::IGMP $minver_IGMP qw( :consts )";
+my $useString = "use Net::Frame::Layer::IGMP $minver_IGMP qw( :consts )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_IGMP = 1;
 }
@@ -54,7 +55,7 @@ sub IGMP {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::IGMP $minver_IGMP qw( :consts )";
+eval $useString;
 1;
 
 __END__

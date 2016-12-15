@@ -10,7 +10,8 @@ use warnings;
 
 my $minver_VRRP = 1.00;
 my $HAVE_VRRP   = 0;
-eval "use Net::Frame::Layer::VRRP $minver_VRRP qw( :consts )";
+my $useString = "use Net::Frame::Layer::VRRP $minver_VRRP qw( :consts )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_VRRP = 1;
 }
@@ -54,7 +55,7 @@ sub VRRP {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::VRRP $minver_VRRP qw( :consts )";
+eval $useString;
 1;
 
 __END__

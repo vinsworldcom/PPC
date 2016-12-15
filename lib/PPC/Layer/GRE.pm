@@ -10,7 +10,8 @@ use warnings;
 
 my $minver_GRE = 1.05;
 my $HAVE_GRE   = 0;
-eval "use Net::Frame::Layer::GRE $minver_GRE qw( :consts )";
+my $useString = "use Net::Frame::Layer::GRE $minver_GRE qw( :consts )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_GRE = 1;
 }
@@ -54,7 +55,7 @@ sub GRE {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::GRE $minver_GRE qw( :consts )";
+eval $useString;
 1;
 
 __END__

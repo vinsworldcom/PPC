@@ -10,7 +10,8 @@ use warnings;
 
 my $minver_STP = 1.02;
 my $HAVE_STP   = 0;
-eval "use Net::Frame::Layer::STP $minver_STP qw( :consts )";
+my $useString = "use Net::Frame::Layer::STP $minver_STP qw( :consts )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_STP = 1;
 }
@@ -54,7 +55,7 @@ sub STP {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::STP $minver_STP qw( :consts )";
+eval $useString;
 1;
 
 __END__

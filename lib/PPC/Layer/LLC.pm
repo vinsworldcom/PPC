@@ -10,7 +10,8 @@ use warnings;
 
 my $minver_LLC = 1.03;
 my $HAVE_LLC   = 0;
-eval "use Net::Frame::Layer::LLC $minver_LLC qw( :consts )";
+my $useString = "use Net::Frame::Layer::LLC $minver_LLC qw( :consts )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_LLC = 1;
 }
@@ -54,7 +55,7 @@ sub LLC {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::LLC $minver_LLC qw( :consts )";
+eval $useString;
 1;
 
 __END__

@@ -10,7 +10,8 @@ use warnings;
 
 my $minver_HSRP = 1.00;
 my $HAVE_HSRP   = 0;
-eval "use Net::Frame::Layer::HSRP $minver_HSRP qw( :consts )";
+my $useString = "use Net::Frame::Layer::HSRP $minver_HSRP qw( :consts )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_HSRP = 1;
 }
@@ -54,7 +55,7 @@ sub HSRP {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::HSRP $minver_HSRP qw( :consts )";
+eval $useString;
 1;
 
 __END__

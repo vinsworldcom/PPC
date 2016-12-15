@@ -10,7 +10,8 @@ use warnings;
 
 my $minver_8021Q = 1.03;
 my $HAVE_8021Q   = 0;
-eval "use Net::Frame::Layer::8021Q $minver_8021Q qw( :consts )";
+my $useString = "use Net::Frame::Layer::8021Q $minver_8021Q qw( :consts )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_8021Q = 1;
 }
@@ -56,7 +57,7 @@ sub VLAN {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::8021Q $minver_8021Q qw( :consts )";
+eval $useString;
 1;
 
 __END__

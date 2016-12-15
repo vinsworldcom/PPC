@@ -10,7 +10,8 @@ use warnings;
 
 my $minver_SNMP = 1.01;
 my $HAVE_SNMP   = 0;
-eval "use Net::Frame::Layer::SNMP $minver_SNMP qw( :consts :subs )";
+my $useString = "use Net::Frame::Layer::SNMP $minver_SNMP qw( :consts :subs )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_SNMP = 1;
 }
@@ -55,7 +56,7 @@ sub SNMPv2Trap {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::SNMP $minver_SNMP qw( :consts :subs )";
+eval $useString;
 1;
 
 __END__

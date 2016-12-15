@@ -10,7 +10,8 @@ use warnings;
 
 my $minver_PIM = 0.01;
 my $HAVE_PIM   = 0;
-eval "use Net::Frame::Layer::PIM $minver_PIM qw( :consts )";
+my $useString = "use Net::Frame::Layer::PIM $minver_PIM qw( :consts )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_PIM = 1;
 }
@@ -54,7 +55,7 @@ sub PIM {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::PIM $minver_PIM qw( :consts )";
+eval $useString;
 1;
 
 __END__

@@ -10,7 +10,8 @@ use warnings;
 
 my $minver_PPP = '';
 my $HAVE_PPP   = 0;
-eval "use Net::Frame::Layer::PPP $minver_PPP qw( :consts )";
+my $useString = "use Net::Frame::Layer::PPP $minver_PPP qw( :consts )";
+eval $useString;
 if ( !$@ ) {
     $HAVE_PPP = 1;
 }
@@ -54,7 +55,7 @@ sub PPP {
 1;
 
 package PPC;
-eval "use Net::Frame::Layer::PPP $minver_PPP qw( :consts )";
+eval $useString;
 1;
 
 __END__
