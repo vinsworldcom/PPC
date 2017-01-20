@@ -48,6 +48,8 @@ sub AUTOLOAD {
     return [$self->layers]->[$layer]->$accessor(@_);
 }
 
+sub DESTROY { return }
+
 sub new {
     shift @_;
     my $ret = Net::Frame::Simple->new( @_ );
