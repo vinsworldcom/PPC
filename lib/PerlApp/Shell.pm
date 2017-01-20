@@ -136,11 +136,12 @@ sub run {
     }
 
     if ( exists $PerlApp_Shell->{shellLexEnv} ) {
-        $PerlApp_Shell->{shell} = $PerlApp_Shell->{shellLexEnv}->get_package();
+        $PerlApp_Shell->{shell}
+          = $PerlApp_Shell->{shellLexEnv}->get_package();
     } else {
         $PerlApp_Shell->{shell} = $ENV{PERLSHELL_PACKAGE};
     }
-    $PerlApp_Shell->{shell} = Term::ReadLine->new($PerlApp_Shell->{shell});
+    $PerlApp_Shell->{shell} = Term::ReadLine->new( $PerlApp_Shell->{shell} );
     $PerlApp_Shell->{shell}->ornaments(0);
 
     #'use strict' is not used to allow "$p=" instead of "my $p=" at the prompt
@@ -211,11 +212,12 @@ sub run {
 
         # variables if in -lexical
         if ( exists $PerlApp_Shell->{shellLexEnv} ) {
-            if ($PerlApp_Shell->{shellCmdLine} =~ /^\s*variables\s*;\s*$/ )
-            {
+            if ( $PerlApp_Shell->{shellCmdLine} =~ /^\s*variables\s*;\s*$/ ) {
                 for my $var (
                     sort( keys(
-                        %{$PerlApp_Shell->{shellLexEnv}->get_context('_')}
+                            %{  $PerlApp_Shell->{shellLexEnv}
+                                  ->get_context('_')
+                            }
                     ) )
                   ) {
                     print "$var\n";
@@ -277,7 +279,7 @@ sub run {
                 my $sp = $PerlApp_Shell->{shellLexEnv}->get_package();
                 my $p  = __PACKAGE__;
                 eval "package $sp; $p->import;";
-                if ( $HAVE_ModRefresh ) {
+                if ($HAVE_ModRefresh) {
                     PerlApp::Shell::ModRefresh->refresh($sp);
                 }
             }
@@ -292,7 +294,7 @@ sub run {
                 my $sp = $ENV{PERLSHELL_PACKAGE};
                 my $p  = __PACKAGE__;
                 eval "package $sp; $p->import;";
-                if ( $HAVE_ModRefresh ) {
+                if ($HAVE_ModRefresh) {
                     PerlApp::Shell::ModRefresh->refresh($sp);
                 }
             }
@@ -433,7 +435,8 @@ sub modules {
         if ( defined $arg ) {
             if ( $t =~ /$arg/ ) {
                 if ( !defined $retType ) {
-                    print "$t $value\n";
+                    printf "$t %s\n",
+                      ( defined $value ) ? $value : "[NOT LOADED]";
                 } else {
                     $rets{$t} = $value;
                 }
@@ -441,7 +444,8 @@ sub modules {
             }
         } else {
             if ( !defined $retType ) {
-                printf "$t $value\n";
+                printf "$t %s\n",
+                  ( defined $value ) ? $value : "[NOT LOADED]";
             } else {
                 $rets{$t} = $value;
             }

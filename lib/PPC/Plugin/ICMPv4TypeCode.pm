@@ -93,13 +93,15 @@ sub icmpv4typecode {
         );
     }
 
-    if ( ( $type !~ /^\d+$/ ) or ( !defined $TYPE{$type} ) ) {
-        PPC::_error( "Not a valid ICMP type - `$type'" );
-    }
-    if ( defined($code) ) {
-        if (   ( $code !~ /^\d+$/ )
-            or ( ( $code != 0 ) and ( !defined $CODE{"$type:$code"}  ) ) ) {
-            PPC::_error( "Not a valid ICMP code - `$code' for type `$type'" );
+    if ( ( caller(1) )[3] !~ __PACKAGE__ ) {
+        if ( ( $type !~ /^\d+$/ ) or ( !defined $TYPE{$type} ) ) {
+            PPC::_error( "Not a valid ICMP type - `$type'" );
+        }
+        if ( defined($code) ) {
+            if (   ( $code !~ /^\d+$/ )
+                or ( ( $code != 0 ) and ( !defined $CODE{"$type:$code"}  ) ) ) {
+                PPC::_error( "Not a valid ICMP code - `$code' for type `$type'" );
+            }
         }
     }
 
