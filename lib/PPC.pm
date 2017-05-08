@@ -83,8 +83,8 @@ use Net::IPv4Addr qw( :all );    # Required by Net::Frame so will have it
 
 #use Net::IPv6Addr;            # DITTO, but it doesn't export - so no use
 
-use Net::Frame 1.15;
-use Net::Frame::Simple 1.06;
+use Net::Frame 1.17;
+use Net::Frame::Simple 1.08;
 use Net::Frame::Layer qw( :subs );
 
 # Net::Frame::Layer::inet6Aton doesn't function like it says:  it won't
@@ -106,7 +106,7 @@ use Net::Frame::Layer::IPv4 qw( :consts );
 use Net::Frame::Layer::TCP qw( :consts );
 use Net::Frame::Layer::UDP qw( :consts );
 
-my $minver_IPv6 = 1.07;
+my $minver_IPv6 = 1.08;
 my $HAVE_IPv6   = 0;
 eval "use Net::Frame::Layer::IPv6 $minver_IPv6 qw( :consts )";
 if ( !$@ ) {
