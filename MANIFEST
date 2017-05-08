@@ -86,6 +86,8 @@ lib/PPC/scripts/IPv6-DNS-Query-AAAA.ppcs
 lib/PPC/scripts/IPv6-ICMPv6-EchoReplyer.ppcs
 lib/PPC/scripts/IPv6-ICMPv6-EchoRequest-SPFragTest.ppcs
 lib/PPC/scripts/IPv6-ICMPv6-EchoRequest.ppcs
+lib/PPC/scripts/IPv6-ICMPv6-FileXfer-Client.ppcs
+lib/PPC/scripts/IPv6-ICMPv6-FileXfer-Server.ppcs
 lib/PPC/scripts/IPv6-ICMPv6-MLDQuery.ppcs
 lib/PPC/scripts/IPv6-ICMPv6-NeighborSolicitation-Responder.ppcs
 lib/PPC/scripts/IPv6-ICMPv6-NeighborSolicitation.ppcs

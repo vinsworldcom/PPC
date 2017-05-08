@@ -19,6 +19,8 @@ our @EXPORT = qw(
   IPv6_SRC
   IPv6_SRC_LL
   IPv6_GW
+  IPv6_PREFIX
+  IPv6_HOSTID
   D2B
   D2H
   H2B
@@ -418,6 +420,58 @@ sub IPv6_GW {
     return undef;
 }
 
+sub IPv6_PREFIX {
+    my ($arg) = @_;
+
+    if ( !defined($arg)
+        or ( defined($arg) and ( $arg eq $PPC::PPC_GLOBALS->{help_cmd} ) ) ) {
+        PPC::_help( __PACKAGE__,
+            "MACROS/IPv6_PREFIX - IPv6 prefix" );
+    }
+
+    if ( defined $arg ) {
+        local $SIG{__DIE__}  = sub { return; };
+        my $addr;
+        eval { $addr = Net::IPv6Addr->new($arg); };
+        if ( defined $addr ) {
+            my $prefix = join ":", ($addr->to_array)[0..3];
+            if ( !defined wantarray ) {
+                print "$prefix\n";
+            }
+            return $prefix;
+        } else {
+            _error( "IPv6 address", $arg );
+        }
+    }
+    return undef;
+}
+    
+sub IPv6_HOSTID {
+    my ($arg) = @_;
+
+    if ( !defined($arg)
+        or ( defined($arg) and ( $arg eq $PPC::PPC_GLOBALS->{help_cmd} ) ) ) {
+        PPC::_help( __PACKAGE__,
+            "MACROS/IPv6_HOSTID - IPv6 host ID" );
+    }
+
+    if ( defined $arg ) {
+        local $SIG{__DIE__}  = sub { return; };
+        my $addr;
+        eval { $addr = Net::IPv6Addr->new($arg); };
+        if ( defined $addr ) {
+            my $prefix = join ":", ($addr->to_array)[4..7];
+            if ( !defined wantarray ) {
+                print "$prefix\n";
+            }
+            return $prefix;
+        } else {
+            _error( "IPv6 address", $arg );
+        }
+    }
+    return undef;
+}
+    
 sub D2B {
     my ( $dec, $pad ) = @_;
 
@@ -666,6 +720,20 @@ prints output.  Optional IPv6 sets IPv6, B<:clear> uses default.
 Creates B<$ipv6_gw> variable from IPv6 default gateway.  Assumes
 C<interface> command has been run.  No variable assignment prints output.  
 Optional IPv6 sets IPv6, B<:clear> uses default.
+
+=head2 IPv6_PREFIX - IPv6 prefix
+
+ [$ipv6_pfx =] IPv6_PREFIX IPv6_Addr
+
+Creates B<$ipv6_pfx> variable from the /64 prefix of the provided IPv6 
+address.  No variable assignment prints output.
+
+=head2 IPv6_HOSTID - IPv6 host ID
+
+ [$ipv6_hid =] IPv6_HOSTID IPv6_Addr
+
+Creates B<$ipv6_hid> variable from the /64 host ID of the provided IPv6 
+address.  No variable assignment prints output.
 
 =head2 D2B - convert decimal number to binary
 

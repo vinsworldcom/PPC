@@ -82,7 +82,7 @@ MyScripts - My Scripts Directory
 
 =head1 DESCRIPTION
 
-This module implements a C<myscritps> command similar to the C<scripts> 
+This module implements a C<myscripts> command similar to the C<scripts> 
 command that allows for a custom directory without changing the 
 B<scripts_dir> default.
 
