@@ -36,9 +36,9 @@ __PACKAGE__->cgBuildIndices;
 sub AUTOLOAD {
     my ($self) = shift;
     $AUTOLOAD =~ s/.*:://;
-    my ($accessor, $layer) = split /([0-9])/, $AUTOLOAD;
+    my ($accessor, $layer) = split /([0-9]{1,})$/, $AUTOLOAD;
     if (defined $layer) {
-        if ($layer !~ /^[0-9]$/) {
+        if ($layer !~ /^[0-9]{1,}$/) {
             PPC::_error("Unknown layer - `$layer'");
         }
     } else {
