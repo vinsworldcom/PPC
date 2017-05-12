@@ -22,7 +22,8 @@ BEGIN {
     @EXPORT = qw();
 
     %EXPORT_TAGS = (
-		    all => [qw{ ipv4_parse	ipv4_chkip
+		    all => [qw{ dec2ipv4
+                ipv4_parse	ipv4_chkip
 				ipv4_network    ipv4_broadcast
 				ipv4_cidr2msk   ipv4_msk2cidr
 				ipv4_in_network ipv4_dflt_netmask
@@ -54,7 +55,15 @@ sub new {
     return $self;
 }
 
-sub to_array{
+sub to_dec {
+    my $self = shift;
+    if (ref $self ne __PACKAGE__) {
+        return Net::IPv4Addr->new($self)->to_dec();
+    }
+    return unpack N => pack CCCC => split /\./ => (join ".", @$self);
+}
+
+sub to_array {
     my $self = shift;
     if (ref $self ne __PACKAGE__) {
         return Net::IPv4Addr->new($self)->to_array();
@@ -62,7 +71,7 @@ sub to_array{
     return map {sprintf "%02x", $_} @$self;
 }
 
-sub to_intarray{
+sub to_intarray {
     my $self = shift;
     if (ref $self ne __PACKAGE__) {
         return Net::IPv4Addr->new($self)->to_intarray();
@@ -114,6 +123,11 @@ sub to_string_mapped_ipv6_hex_compressed {
         return '::ffff:' . $x . ":" . $y;
     } 
     return Net::IPv4Addr->new($self)->to_string_mapped_ipv6_hex_compressed();
+}
+
+sub dec2ipv4($) {
+    my ($ip) = $_[0];
+    return join '.', unpack 'C4', pack 'N', $ip;
 }
 
 # Given an IPv4 address in host, ip/netmask or cidr format
@@ -344,6 +358,12 @@ to import them all or explicitly import those you need.
 
 Create Net::IPv4Addr object.  Croak if error.
 
+=item to_dec
+
+    print $addr->to_dec;
+
+Return a decimal representation corresponding to IPv4 address in $addr.
+
 =item to_array
 
     @hexOctets = $addr->to_array;
@@ -398,6 +418,12 @@ hexadecimal numbers corresponding to IPv4 address in $addr.
 =head1 FUNCTIONS
 
 =over
+
+=item dec2ipv4
+
+    print dec2ipv4($num);
+
+Return IPv4 address from decimal number provided.
 
 =item ipv4_parse
 
