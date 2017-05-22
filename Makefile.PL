@@ -20,8 +20,8 @@ WriteMakefile(
     EXE_FILES         => ['bin/ppc.pl',
                          ],
     PREREQ_PM         => {'Net::Pcap' => 0.17,
-                          'Net::Frame' => 1.15,
-                          'Net::Frame::Simple' => 1.06,
+                          'Net::Frame' => 1.17,
+                          'Net::Frame::Simple' => 1.08,
                           %addPREREQ_PM
                          }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
@@ -33,59 +33,3 @@ __END__
 
 Thread:  http://www.perlmonks.org/?node_id=321982
 Answer:  http://www.perlmonks.org/?node_id=322065
-
-my %my_globals = (
-    SUPPORT_FILES_DIR   => '/var/perl/Business-Shipping'
-);
-
-WriteMakefile(
-    CONFIGURE       => \&extra_WriteMakefile_options,
-);
-
-#
-# Override the standard "install" target, so that it calls "support_files_install"
-#
-sub MY::install {
-    package MY;
-    my $inherited = shift->SUPER::install(@_);
-    my $new; 
-    for ( split( "\n", $inherited ) ) {
-        if ( /^install :: / ) {
-            $_ .= " support_files_install";
-        }
-        $new .= "$_\n";
-    }
-    return $new;
-}
-sub MY::postamble {
-    return qq{
-
-support_files_install :
-    \@echo "Installing support files (database, configuration, etc.) to $my_globals{SUPPORT_FILES_DIR}"
-    \@\$(MKPATH) $my_globals{SUPPORT_FILES_DIR}/data
-    \@\$(MKPATH) $my_globals{SUPPORT_FILES_DIR}/config
-    \@\$(CP) --recursive --force data/*   $my_globals{SUPPORT_FILES_DIR}/data/
-    \@\$(CP) --recursive --force config/* $my_globals{SUPPORT_FILES_DIR}/config/
-};
-}
-
-sub extra_WriteMakefile_options {
-    $my_globals{SUPPORT_FILES_DIR} = prompt(
-            "\n"
-        .   "  ---  Business::Shipping support files directory  ---  \n"
-        .   "\n"
-        .   "Business::Shipping has various support files for configuration, database, etc.\n"
-        .   "(The path to these files can be overridden later on a per-user basis.)\n"
-        .   "I need to know the path to the \'system\' level, or \'default\' files.\n"
-        .   "On many systems, this directory will only be accessible by root.\n"
-        .   "\n"
-        .   "Business::Shipping default support files directory:", 
-        $my_globals{SUPPORT_FILES_DIR},
-    );
-    $my_globals{SUPPORT_FILES_DIR} =~ s:[\\/]\s*$::;
-    $my_globals{SUPPORT_FILES_DIR} =~ s:^\s*::;
-    
-    my %X;
-    #$X{ EXTRA_CONFIG_OPTION } = "value";
-    return \%X;
-}

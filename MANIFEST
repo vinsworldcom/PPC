@@ -3,10 +3,13 @@ MANIFEST
 Makefile.PL
 README.txt
 bin/ppc.pl
+lib/auto/Net/IPv4Addr/autosplit.ix
 lib/auto/PPC/Packet/autosplit.ix
+lib/auto/PPC/autosplit.ix
 lib/Net/Frame/Layer/ICMPv6/Option.diff
 lib/Net/Frame/Layer/ICMPv6/Option.pm
 lib/Net/Frame/Layer/PIM.pm
+lib/Net/IPv4Addr.pm
 lib/PPC.pm
 lib/PPC/Interface.pm
 lib/PPC/Interface/Example.pm
@@ -38,12 +41,13 @@ lib/PPC/Packet.pm
 lib/PPC/Packet/SRP.pm
 lib/PPC/Plugin.pm
 lib/PPC/Plugin/DSCP.pm
+lib/PPC/Plugin/GeoIP.pm
 lib/PPC/Plugin/Gnuplot.pm
 lib/PPC/Plugin/ICMPv4TypeCode.pm
 lib/PPC/Plugin/ICMPv6TypeCode.pm
 lib/PPC/Plugin/IPv4Options.pm
 lib/PPC/Plugin/IPv6Options.pm
-lib/PPC/Plugin/MulticastMac.pm
+lib/PPC/Plugin/Multicast.pm
 lib/PPC/Plugin/MyScripts.pm
 lib/PPC/Plugin/P0f.pm
 lib/PPC/Plugin/Ping.pm
@@ -61,6 +65,7 @@ lib/PPC/scripts/IPv4-6in4-IPv6-ICMPv6-EchoRequest.ppcs
 lib/PPC/scripts/IPv4-DNS-Query-A.ppcs
 lib/PPC/scripts/IPv4-DNS-Query-AAAA.ppcs
 lib/PPC/scripts/IPv4-DNS-Replyer.ppcs
+lib/PPC/scripts/IPv4-DNS-SSNExfil.ppcs
 lib/PPC/scripts/IPv4-HSRP-Active.ppcs
 lib/PPC/scripts/IPv4-ICMPv4-EchoReplyer.ppcs
 lib/PPC/scripts/IPv4-ICMPv4-EchoRequest-SPFragTest.ppcs
@@ -110,6 +115,7 @@ lib/PerlApp/Config.pm
 lib/PerlApp/Shell.pm
 lib/PerlApp/Shell/LexPersist.pm
 lib/PerlApp/Shell/ModRefresh.pm
+lib/PerlApp/Shell/ShellCommands.pm
 lib/Win32/Interface.pm
 t/00-interfaces.t
 t/01-use.t
