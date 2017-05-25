@@ -87,6 +87,9 @@ use Net::Frame 1.17;
 use Net::Frame::Simple 1.08;
 use Net::Frame::Layer qw( :subs );
 
+# alias
+*NFL:: = \*Net::Frame::Layer::;
+
 # Net::Frame::Layer::inet6Aton doesn't function like it says:  it won't
 # work with names, only numbers.  This is due to differences in Socket
 # and Socket6 (required by Net::Frame::Layer).
@@ -570,6 +573,49 @@ sub interfaces {
         return @rets;
     } else {
         return \@rets;
+    }
+}
+
+sub nfl {
+    my ($mod) = @_;
+
+    if ( !defined($mod) or ( $mod eq $PPC_GLOBALS->{help_cmd} ) ) {
+        _help( __PACKAGE__,
+            "COMMANDS/nfl - Net::Frame::Layer:: alias" );
+    }
+
+    my $prefix = 'Net::Frame::Layer::';
+    my $origMod = $mod;
+    $mod =~ s/^$prefix//;
+    my @mods;
+    my $FOUND = 0;
+    for my $m ( sort( keys(%INC) ) ) {
+        my $t = $m;
+        $t =~ s/\//::/g;
+        $t =~ s/\.pm$//;
+
+        if ( $t =~ /^$prefix$mod/ ) {
+            push @mods, $t;
+            $FOUND = 1;
+        }
+    }
+    if ( !$FOUND ) {
+        printf "Module(s) not found%s",
+          ( defined $mod ) ? " - `$prefix$origMod'\n" : "\n";
+    }
+
+    for my $modName ( @mods ) {
+        $modName =~ s/^$prefix//;
+        no strict 'refs';
+        if ( !__PACKAGE__->can($modName) ) {
+            *{$modName} = sub {
+                my $p = PPC::Layer::_layer( $modName, @_ );
+                if ( !defined wantarray ) {
+                    print $p->print . "\n";
+                }
+                return $p;
+            }
+        }
     }
 }
 
@@ -1073,6 +1119,24 @@ value is B<PPC::Interface> object.
  interfaces
 
 List the available interfaces.
+
+=head2 nfl - Net::Frame::Layer:: alias
+
+  use Net::Frame::Layer::NAME
+  nfl 'Net::Frame::Layer::NAME'  # or just:  nfl 'NAME'
+
+Alias the trailing text 'NAME' after Net::Frame::Layer:: module to NAME so 
+it can be called as a layer without typing the full Net::Frame::Layer:: module 
+qualifier.  By default, all sub-modules of Net::Frame::Layer::NAME that are 
+imported in the 'use' are also aliased.  For example, if the above 
+example has a subtree:
+
+  Net::Frame::Layer::NAME             => NAME
+  Net::Frame::Layer::NAME::Sub1       => NAME::Sub1
+  Net::Frame::Layer::NAME::Sub2       => NAME::Sub1
+  Net::Frame::Layer::NAME::Deep::Sub  => NAME::Deep::Sub
+
+This command should not redefine any existing subs already defined.
 
 =head2 nftxt - render Net::Frame syntax
 

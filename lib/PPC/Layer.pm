@@ -37,8 +37,11 @@ if ( !$@ ) {
 use Exporter;
 
 our @EXPORT = qw(
+  ETH
   ETHER
+  ETH4
   ETHER4
+  ETH6
   ETHER6
   ARP
   IP
@@ -57,6 +60,10 @@ our @EXPORT = qw(
 our @ISA = qw ( PPC Exporter );
 
 ########################################################
+
+sub ETH {
+      return ETHER(@_);
+}
 
 sub ETHER {
     my %params;
@@ -106,6 +113,10 @@ sub ETHER {
     return $p;
 }
 
+sub ETH4 {
+      return ETHER4(@_);
+}
+
 sub ETHER4 {
       my %params;
       $params{type} = NF_ETH_TYPE_IPv4;
@@ -136,6 +147,10 @@ sub ETHER4 {
       }
 
       return ETHER(%params);
+}
+
+sub ETH6 {
+      return ETHER6(@_);
 }
 
 sub ETHER6 {
@@ -533,6 +548,14 @@ command has been run:
 
 Single option indicates B<type>.
 
+Alias:
+
+=over 4
+
+=item B<ETH>
+
+=back
+
 =head2 ETHER4 - create layer 2 Ethernet frame for IPv4
 
  [$ether4 =] ETHER4 [(Net::Frame::Layer::ETH options)]
@@ -549,6 +572,14 @@ command has been run:
 
 Single option indicates B<dst>.
 
+Alias:
+
+=over 4
+
+=item B<ETH4>
+
+=back
+
 =head2 ETHER6 - create layer 2 Ethernet frame for IPv6
 
  [$ether6 =] ETHER6 [(Net::Frame::Layer::ETH options)]
@@ -564,6 +595,14 @@ command has been run:
   type         NF_ETH_TYPE_IPv6
 
 Single option indicates B<dst>.
+
+Alias:
+
+=over 4
+
+=item B<ETH6>
+
+=back
 
 =head2 ARP - create ARP request
 
