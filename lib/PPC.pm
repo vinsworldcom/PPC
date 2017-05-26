@@ -1073,7 +1073,7 @@ is read and then parsed at once.
   file       File (with optional path) to      (none)
                execute.
   line       Parse file line-by-line (1 = on)  (off)
-  verbose    Show file content      ( 1 = on)  (off)
+  verbose    Show file content       (1 = on)  (off)
 
 Current directory is searched unless relative or absolute path is also 
 provided.  If configuration value B<file_prefix> exists, it is prepended to 
