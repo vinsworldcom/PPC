@@ -56,9 +56,13 @@ sub new {
 }
 
 sub to_dec {
+    return to_int(@_);
+}
+
+sub to_int {
     my $self = shift;
     if (ref $self ne __PACKAGE__) {
-        return Net::IPv4Addr->new($self)->to_dec();
+        return Net::IPv4Addr->new($self)->to_int();
     }
     return unpack N => pack CCCC => split /\./ => (join ".", @$self);
 }
@@ -125,7 +129,19 @@ sub to_string_mapped_ipv6_hex_compressed {
     return Net::IPv4Addr->new($self)->to_string_mapped_ipv6_hex_compressed();
 }
 
-sub dec2ipv4($) {
+sub dec2ip {
+    return int2ipv4(@_);
+}
+
+sub dec2ipv4 {
+    return int2ipv4(@_);
+}
+
+sub int2ip {
+    return int2ipv4(@_);
+}
+
+sub int2ipv4($) {
     my ($ip) = $_[0];
     return join '.', unpack 'C4', pack 'N', $ip;
 }
@@ -358,11 +374,19 @@ to import them all or explicitly import those you need.
 
 Create Net::IPv4Addr object.  Croak if error.
 
-=item to_dec
+=item to_int
 
-    print $addr->to_dec;
+    print $addr->to_int;
 
-Return a decimal representation corresponding to IPv4 address in $addr.
+Return an integer representation corresponding to IPv4 address in $addr.
+
+Alias:
+
+=over 4
+
+=item B<to_dec>
+
+=back
 
 =item to_array
 
@@ -419,11 +443,23 @@ hexadecimal numbers corresponding to IPv4 address in $addr.
 
 =over
 
-=item dec2ipv4
+=item int2ipv4
 
-    print dec2ipv4($num);
+    print int2ipv4($num);
 
-Return IPv4 address from decimal number provided.
+Return IPv4 address from provided integer number.
+
+Alias:
+
+=over 4
+
+=item B<int2ip>
+
+=item B<dec2ip>
+
+=item B<dec2ipv4>
+
+=back
 
 =item ipv4_parse
 
