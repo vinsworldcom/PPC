@@ -812,7 +812,7 @@ sub wrpcap {
     # my %devinfo;
     # my $pcap = Net::Pcap::pcap_open( $PPC_GLOBALS->{device},
     #     100, 0, 1000, \%devinfo, \$err );
-    my $pcap = Net::Pcap::pcap_open_dead( DLT_EN10MB, 100 );
+    my $pcap = Net::Pcap::pcap_open_dead( DLT_EN10MB, 65535 );
 
     my $dump;
     if ( !defined( $dump = Net::Pcap::pcap_dump_open( $pcap, $file ) ) ) {
