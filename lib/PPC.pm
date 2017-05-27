@@ -576,19 +576,34 @@ sub interfaces {
     }
 }
 
-sub nfl {
-    my ($mod) = @_;
+sub layer {
+    my ($mod, @stuff) = @_;
 
     if ( !defined($mod) or ( $mod eq $PPC_GLOBALS->{help_cmd} ) ) {
         _help( __PACKAGE__,
-            "COMMANDS/nfl - Net::Frame::Layer:: alias" );
+            "COMMANDS/layer - Net::Frame::Layer:: alias" );
     }
 
     my $prefix = 'Net::Frame::Layer::';
-    my $origMod = $mod;
     $mod =~ s/^$prefix//;
+
+    # "arg u ment"
+    my @parts = split /\s+/, $mod;
+    $mod = shift @parts;
+    # "arg" "u ment"
+    my $trailer = '';
+    $trailer  = join " ", @parts;
+    # add anthing else
+    $trailer .= join " ", @stuff;
+
+    my $useString = "use $prefix$mod $trailer";
+    eval $useString;
+    if ( $@ ) {
+        PPC::Layer::_err_not_installed( $mod, "" );
+    }
+
+    # find all sub modules $mod::... in @INC
     my @mods;
-    my $FOUND = 0;
     for my $m ( sort( keys(%INC) ) ) {
         my $t = $m;
         $t =~ s/\//::/g;
@@ -596,19 +611,27 @@ sub nfl {
 
         if ( $t =~ /^$prefix$mod/ ) {
             push @mods, $t;
-            $FOUND = 1;
         }
     }
-    if ( !$FOUND ) {
-        printf "Module(s) not found%s",
-          ( defined $mod ) ? " - `$prefix$origMod'\n" : "\n";
+    if ( @mods == 0 ) {
+        print "Module(s) not found - `$prefix$mod'\n";
     }
 
+    # create subs
     for my $modName ( @mods ) {
         $modName =~ s/^$prefix//;
         no strict 'refs';
+        # only if sub doesn't already exist
         if ( !__PACKAGE__->can($modName) ) {
             *{$modName} = sub {
+
+                if ( @_ == 1 ) {
+                    my ($arg) = @_;
+                    if ( $arg eq PPC::config('help_cmd') ) {
+                        PPC::_help( __PACKAGE__, $modName,
+                            $prefix.$modName );
+                    }
+                }
                 my $p = PPC::Layer::_layer( $modName, @_ );
                 if ( !defined wantarray ) {
                     print $p->print . "\n";
@@ -1120,10 +1143,11 @@ value is B<PPC::Interface> object.
 
 List the available interfaces.
 
-=head2 nfl - Net::Frame::Layer:: alias
+=head2 layer - Net::Frame::Layer:: alias
 
-  use Net::Frame::Layer::NAME
-  nfl 'Net::Frame::Layer::NAME'  # or just:  nfl 'NAME'
+  layer 'Net::Frame::Layer::NAME'
+  layer 'NAME'
+  layer 'NAME 1.01 qw(:consts)'
 
 Alias the trailing text 'NAME' after Net::Frame::Layer:: module to NAME so 
 it can be called as a layer without typing the full Net::Frame::Layer:: module 
