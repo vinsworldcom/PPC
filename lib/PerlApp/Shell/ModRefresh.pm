@@ -8,8 +8,6 @@ package PerlApp::Shell::ModRefresh;
 use strict;
 use warnings;
 
-our $VERSION = "0.06";
-
 use Module::Refresh;
 
 our @ISA = qw( Module::Refresh );

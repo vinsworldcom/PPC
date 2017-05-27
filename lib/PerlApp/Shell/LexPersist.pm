@@ -8,8 +8,6 @@ package PerlApp::Shell::LexPersist;
 use strict;
 use warnings;
 
-our $VERSION = "0.06";
-
 use Lexical::Persistence 1.01 ();
 
 our @ISA = qw( Lexical::Persistence );
