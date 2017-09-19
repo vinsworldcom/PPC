@@ -9,7 +9,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = "0.06";
+our $VERSION = "0.07";
 
 use Cwd;
 use Term::ReadLine;
@@ -302,7 +302,7 @@ sub run {
               = "package "
               . $ENV{PERLSHELL_PACKAGE} . ";\n"
               . $PerlApp_Shell->{shellCmdLine}
-              . ";\nBEGIN {\$ENV{PERLSHELL_PACKAGE} = __PACKAGE__}";
+              . "\nBEGIN {\$ENV{PERLSHELL_PACKAGE} = __PACKAGE__}";
 
             # execute
             eval $PerlApp_Shell->{shellCmdLine};
@@ -318,7 +318,7 @@ sub run {
         if ( defined( $ENV{PERLSHELL_SESSION} ) and !$@ ) {
 
             # don't log session start command
-            $PerlApp_Shell->{shellCmdLine} =~ s/\s*\session\s*.*//;
+            $PerlApp_Shell->{shellCmdLine} =~ s/\s*session\s*.*//;
 
             # clean up command if we added stuff while not in -lex mode
             $PerlApp_Shell->{shellCmdLine} =~ s/^package .*;\n//;

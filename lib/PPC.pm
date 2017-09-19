@@ -16,6 +16,12 @@ our $VERSION = '1.11';
 use FindBin qw( $Bin );
 $Bin = $Bin . '/../lib';
 
+if ( exists $ENV{PERLSHELL_SKIPVARS} ) {
+    $ENV{PERLSHELL_SKIPVARS} .= ';' .
+        join ";", qw($Bin $PERMUTE $REQUIRE_ORDER $RETURN_IN_ORDER 
+        $PPC_GLOBALS %Interface:: %Layer:: %Macro:: %Packet:: %Plugin::);
+}
+
 my $scripts = $Bin;
 for (@INC) {
     if ( -e ( $_ . "/PPC/scripts/.ppcscriptsdir" ) ) {
