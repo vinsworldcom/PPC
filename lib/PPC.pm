@@ -14,10 +14,11 @@ use Pod::Usage;
 our $VERSION = '1.11';
 
 use FindBin qw( $Bin );
+$Bin = $Bin . '/../lib';
 
-my $scripts = $Bin . '/../lib/PPC';
+my $scripts = $Bin;
 for (@INC) {
-    if ( -e ( $_ . "/PPC/scripts/.ppcscriptdir" ) ) {
+    if ( -e ( $_ . "/PPC/scripts/.ppcscriptsdir" ) ) {
         $scripts = $_;
         last;
     }
@@ -31,7 +32,7 @@ our $PPC_GLOBALS = PerlApp::Config->new(
     file_prefix => undef,
     help_cmd    => '-h',
     interface   => undef,
-    scripts_dir => "$scripts/scripts/",
+    scripts_dir => $scripts . "/PPC/scripts/",
     wireshark   => undef
 );
 
