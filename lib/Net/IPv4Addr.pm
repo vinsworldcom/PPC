@@ -23,7 +23,7 @@ BEGIN {
 
     %EXPORT_TAGS = (
 		    all => [qw{ dec2ipv4
-                ipv4_parse	ipv4_chkip
+				ipv4_parse      ipv4_chkip
 				ipv4_network    ipv4_broadcast
 				ipv4_cidr2msk   ipv4_msk2cidr
 				ipv4_in_network ipv4_dflt_netmask
@@ -34,7 +34,7 @@ BEGIN {
 
     Exporter::export_ok_tags('all');
 
-    $VERSION = '0.10';
+    $VERSION = '0.10_1';
 }
 
 # Preloaded methods go here.

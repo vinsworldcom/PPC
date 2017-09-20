@@ -27,14 +27,14 @@ is( $ret->{device}, undef, "config all device" );
 is( $ret->{errmode}, 'stop', "config all errmode" );
 is( $ret->{file_prefix}, undef, "config all file_prefix" );
 is( $ret->{help_cmd}, '-h', "config all help_cmd" );
-ok( $ret->{scripts_dir} =~ /\/\.\.\/lib\/PPC\/scripts\/$/, "config all scripts_dir" );
+ok( $ret->{scripts_dir} =~ /lib\/PPC\/scripts\/$/, "config all scripts_dir" );
 
 is( PPC::config('conf_file'), 'ppc.conf', "config conf_file" );
 is( PPC::config('device'), undef, "config device" );
 is( PPC::config('errmode'), 'stop', "config erromode" );
 is( PPC::config('file_prefix'), undef, "config file_prefix" );
 is( PPC::config('help_cmd'), '-h', "config help_cmd" );
-ok( PPC::config('scripts_dir') =~ /\/\.\.\/lib\/PPC\/scripts\/$/, "config scripts_dir" );
+ok( PPC::config('scripts_dir') =~ /lib\/PPC\/scripts\/$/, "config scripts_dir" );
 
 # constants
 $ret = PPC::constants();
@@ -155,8 +155,7 @@ Net::Frame::Layer::TCP->new\(
 
 # scripts
 is( ref ( $ret = PPC::scripts() ), 'ARRAY', "scripts directory listing" );
-is( $#{$ret}, 49, "scripts found files" );
-
+is( $#{$ret}, 52, "scripts found files" );
 
 # wrpcap, rdpcap
 is( ($ret = PPC::wrpcap('out.pcap', $packet) ), 1, "wrpcap write file" );

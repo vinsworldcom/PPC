@@ -112,6 +112,12 @@ installed versions of the modules, simply delete the files from this
 subdirectory.
 
 
+  Net/IPv4Addr.pm
+
+Adds an object-oriented interface and accessors similar to Net::IPv6Addr 
+to the Net::IPv4Addr module while maintaining existing functionality.
+
+
   Net/Frame/Layer/PIM.pm
 
 An incomplete implementation of the Protocol Independent Multicast layer.  If 

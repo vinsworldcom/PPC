@@ -79,7 +79,6 @@ if ( defined $opt{exit} ) {
     $params{execute} .= 'exit;';
 }
 
-
 if (@ARGV) {
     $params{argv} = \@ARGV;
 }

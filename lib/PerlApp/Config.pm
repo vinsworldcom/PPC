@@ -298,7 +298,7 @@ usually would be the installation directory of the script as such:
   $conf_file = config_where($conf, $Bin);
 
 =back
- 
+
 If no configuration file is found, returns undefined.
 
 =head1 EXPORTS

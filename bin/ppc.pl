@@ -10,20 +10,35 @@ use Getopt::Long qw(:config no_ignore_case pass_through);
 use Pod::Usage;
 
 my %opt;
+my ( $opt_help, $opt_man, $opt_versions );
 
 GetOptions(
     'interface=s' => \$opt{interface},
-);
+    'help!'       => \$opt_help,
+    'man!'        => \$opt_man,
+    'versions!'   => \$opt_versions
+) or pod2usage( -verbose => 0 );
 
-my @interface = ();
+pod2usage( -verbose => 1 ) if defined $opt_help;
+pod2usage( -verbose => 2 ) if defined $opt_man;
+
+my @interface;
 if ( defined $opt{interface} ) {
     push @interface, '-e';
     push @interface, "interface \'$opt{interface}\'";
 }
 
+if ( defined $opt_versions ) {
+    undef @interface; undef @ARGV;
+    push @interface, '-e';
+    push @interface, 'print $PPC::VERSION';
+    push @interface, '-E';
+}
+
+use FindBin qw( $Bin );
 system (
-    'C:\Users\mvincent\tmp\PerlApp-Shell-0.06\bin\plsh.pl',
-    '-I', '/usr/bin/ppc/lib',
+    "$Bin/plsh.pl",
+    '-I', "$Bin/../lib",
     '-P', 'PPC',
     '-p', 'ppc> ',
     @interface,
@@ -76,9 +91,6 @@ and B<PerlApp::Shell> for details.
 =head1 EXAMPLES
 
  C:\> ppc.pl -i "Local Area Connection"
- Welcome to Perl Packet Crafter (PPC)
- Version:  1.02
-
  Local Area Connection
 
  ppc>
@@ -126,6 +138,11 @@ and edit the sequence number in each packet.  Send and receive.
  More? [$p[$_]->layers]->[3]->sequenceNumber(100+$_);
  More? }
  ppc> $r = srp \@p;
+
+=head2 Send Directly from Command Line
+
+ C:\> cd lib\PPC
+ C:\> ppc.pl -i "Local Area Connection" -e "file 'scripts/IPv4-ICMPv4-EchoRequest.ppcs', argv => '-i www.google.com -s'" -E
 
 =head1 SEE ALSO
 

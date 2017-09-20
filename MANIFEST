@@ -3,6 +3,7 @@ MANIFEST
 Makefile.PL
 README.txt
 bin/ppc.pl
+bin/plsh.pl
 lib/auto/Net/IPv4Addr/autosplit.ix
 lib/auto/PPC/Packet/autosplit.ix
 lib/auto/PPC/autosplit.ix
