@@ -73,8 +73,6 @@ sub new {
                 } else {
                     croak("Cannot find directory `$cfg{$_}'");
                 }
-            } elsif (/^-?argv$/i) {
-                $params{argv} = $cfg{$_};
             } elsif (/^-?execute$/i) {
                 $params{execute} = $cfg{$_};
             } elsif (/^-?lex(?:ical)?$/i) {
@@ -147,47 +145,27 @@ sub run {
     #'use strict' is not used to allow "$p=" instead of "my $p=" at the prompt
     no strict 'vars';
 
-    $PerlApp_Shell->{FIRST} = 1;
-
     # will always exeucte without readline first time through (do ... while)
-    while (
-        $PerlApp_Shell->{FIRST}
-        or defined(
+    while (1) {
+
+        # do ... while loop won't support next and last
+        # First check then clear {execute} to autopopulate
+        # $PerlApp_Shell->{shellCmdLine}
+        # otherwise, just do the readline.
+
+        if ( defined $PerlApp_Shell->{execute} ) {
+            $PerlApp_Shell->{shellCmdLine} = $PerlApp_Shell->{execute};
+
+            # clear - it will never happen again
+            delete $PerlApp_Shell->{execute};
+        } else {
             $PerlApp_Shell->{shellCmdLine}
               .= $PerlApp_Shell->{shell}->readline(
                 ( defined $PerlApp_Shell->{shellCmdLine} )
                 ? 'More? '
                 : $ENV{PERLSHELL_PROMPT}
-              )
-        )
-      ) {
-
-        # do ... while loop won't support next and last
-        # Use $PerlApp_Shell->{FIRST} flag instead to autopopulate
-        # $PerlApp_Shell->{shellCmdLine} with argv or execute supplied
-        # from user; otherwise, just do the readline.
-        if ( $PerlApp_Shell->{FIRST} ) {
-
-            # populate @argv first
-            if ( defined $PerlApp_Shell->{argv} ) {
-                $PerlApp_Shell->{shellCmdLine}
-                  = '@argv = @{$PerlApp_Shell->{argv}};';
-            }
-
-            # any commands, which may include @argv
-            if ( defined $PerlApp_Shell->{execute} ) {
-                $PerlApp_Shell->{shellCmdLine} .= $PerlApp_Shell->{execute};
-            }
-
-            # otherwise, just do normal readline
-            if (    !defined $PerlApp_Shell->{argv}
-                and !defined $PerlApp_Shell->{execute} ) {
-                $PerlApp_Shell->{shellCmdLine}
-                  = $PerlApp_Shell->{shell}
-                  ->readline( $ENV{PERLSHELL_PROMPT} );
-            }
+              );
         }
-        $PerlApp_Shell->{FIRST} = 0;
 
         chomp $PerlApp_Shell->{shellCmdLine};
 
@@ -234,10 +212,12 @@ sub run {
             'brace'       => 0
         );
         if ( my @c = ( $PerlApp_Shell->{shellCmdLine} =~ /\(/g ) ) {
-            $PerlApp_Shell->{shellCmdComplete}->{parenthesis} += scalar(@c);
+            $PerlApp_Shell->{shellCmdComplete}->{parenthesis}
+              += scalar(@c);
         }
         if ( my @c = ( $PerlApp_Shell->{shellCmdLine} =~ /\)/g ) ) {
-            $PerlApp_Shell->{shellCmdComplete}->{parenthesis} -= scalar(@c);
+            $PerlApp_Shell->{shellCmdComplete}->{parenthesis}
+              -= scalar(@c);
         }
         if ( my @c = ( $PerlApp_Shell->{shellCmdLine} =~ /\[/g ) ) {
             $PerlApp_Shell->{shellCmdComplete}->{bracket} += scalar(@c);
@@ -635,11 +615,8 @@ Valid options are:
 
   Option     Description                             Default
   ------     -----------                             -------
-  -argv      Reference to an array to populate       (none)
-             @argv on Shell run().
-             NOTE:  lowercase @argv , NOT @ARGV.
   -execute   Valid Perl code ending statements with  (none)
-             semicolon (;). May use @argv from above.
+             semicolon (;). May use @ARGV.
   -homedir   Specify home directory.                 $ENV{HOME} or
              Used for `cd' with no argument.         $ENV{USERPROFILE}
   -lexical   Require "my" for variables.             (off)

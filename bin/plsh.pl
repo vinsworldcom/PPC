@@ -6,20 +6,20 @@ use Getopt::Long qw(:config no_ignore_case);
 use Pod::Usage;
 
 use PerlApp::Shell;
-use Text::ParseWords;    # quotewords()
+#use Text::ParseWords;    # quotewords()
 
 my %opt;
 my ( $opt_help, $opt_man, $opt_versions );
 
 GetOptions(
-    '' => \$opt{interact},    # lonesome dash is interactive test from STDIN
+#    '' => \$opt{interact},    # lonesome dash is interactive test from STDIN
     'e|execute=s@' => \$opt{execute},
     'E|exit!'      => \$opt{exit},
     'Include=s@'   => \$opt{include},
     'lexical!'     => \$opt{lexical},
     'P|package=s'  => \$opt{package},
     'p|prompt=s'   => \$opt{prompt},
-    'words!'       => \$opt{words},
+#    'words!'       => \$opt{words},
     'help!'        => \$opt_help,
     'man!'         => \$opt_man,
     'versions!'    => \$opt_versions
@@ -41,7 +41,7 @@ if ( defined $opt_versions ) {
       # Start Additional USE
 ##################################################
       "    PerlApp::Shell      $PerlApp::Shell::VERSION\n",
-      "    Text::ParseWords    $Text::ParseWords::VERSION\n",
+#      "    Text::ParseWords    $Text::ParseWords::VERSION\n",
 ##################################################
       # End Additional USE
 ##################################################
@@ -79,31 +79,27 @@ if ( defined $opt{exit} ) {
     $params{execute} .= 'exit;';
 }
 
-if (@ARGV) {
-    $params{argv} = \@ARGV;
-}
+# if ( defined $opt{interact} ) {
 
-if ( defined $opt{interact} ) {
+    # my @temp;
+    # if ( defined $opt{words} ) {
+        # while (<STDIN>) {
+            # chomp $_;
+            # my @p = parse_line( '\s+', 0, $_ );
+            # push @temp, @p;
+        # }
+        # if ( !defined $temp[$#temp] ) {
+            # pop @temp;
+        # }
+    # } else {
+        # while (<STDIN>) {
+            # chomp $_;
+            # push @temp, $_;
+        # }
+    # }
 
-    my @temp;
-    if ( defined $opt{words} ) {
-        while (<STDIN>) {
-            chomp $_;
-            my @p = parse_line( '\s+', 0, $_ );
-            push @temp, @p;
-        }
-        if ( !defined $temp[$#temp] ) {
-            pop @temp;
-        }
-    } else {
-        while (<STDIN>) {
-            chomp $_;
-            push @temp, $_;
-        }
-    }
-
-    $params{argv} = \@temp;
-}
+    # $params{argv} = \@temp;
+# }
 
 if ( defined $opt{lexical} ) {
     $params{lexical} = 1;
@@ -140,12 +136,11 @@ Creates an interactive Perl shell.
  -E                   Exit after -e commands complete.
  --exit
 
- -e                   Valid Perl to execute.
- --execute            May include '@argv', containing all args.
-                      See PerlApp::Shell->new().
+ -e                   Valid Perl to execute.  Multiple statements 
+ --execute            semicolon-separated and multiple -e allowed.
 
- -I dir               Specify directory to prepend @INC.
- --Include
+ -I dir               Specify directory to prepend @INC.  Multiple 
+ --Include            -I allowed.
 
  -l                   Require "my" for all variables.
  --lexical            Requires Lexical::Persistence, fails if not found.
@@ -157,8 +152,12 @@ Creates an interactive Perl shell.
  -p prompt            Prompt for the shell.
  --prompt
 
+=cut
+
  -w                   Treat each element of args as a separate 
- --words              entry for @argv.
+ --words              entry for @ARGV.
+
+=pod
 
  --help               Print Options and Arguments.
  --man                Print complete man page.
@@ -187,7 +186,14 @@ If -E, add "exit;" to end of -e.
 
 =head1 EXAMPLES
 
- plsh.pl -e "print join ' ', @argv;" hello world
+=head2 Command Line
+
+ plsh.pl -e "print join ' ', @ARGV;" -E hello world
+
+=head2 Interactive
+
+ C:\> plsh.pl
+ Perl> print "hello world";
 
 =head1 LICENSE
 
