@@ -6,6 +6,7 @@ use Getopt::Long qw(:config no_ignore_case);
 use Pod::Usage;
 
 use PerlApp::Shell;
+
 #use Text::ParseWords;    # quotewords()
 
 my %opt;
@@ -19,10 +20,11 @@ GetOptions(
     'lexical!'     => \$opt{lexical},
     'P|package=s'  => \$opt{package},
     'p|prompt=s'   => \$opt{prompt},
+    'session=s'    => \$opt{session},
 #    'words!'       => \$opt{words},
-    'help!'        => \$opt_help,
-    'man!'         => \$opt_man,
-    'versions!'    => \$opt_versions
+    'help!'     => \$opt_help,
+    'man!'      => \$opt_man,
+    'versions!' => \$opt_versions
 ) or pod2usage( -verbose => 0 );
 
 pod2usage( -verbose => 1 ) if defined $opt_help;
@@ -41,7 +43,8 @@ if ( defined $opt_versions ) {
       # Start Additional USE
 ##################################################
       "    PerlApp::Shell      $PerlApp::Shell::VERSION\n",
-#      "    Text::ParseWords    $Text::ParseWords::VERSION\n",
+
+      #      "    Text::ParseWords    $Text::ParseWords::VERSION\n",
 ##################################################
       # End Additional USE
 ##################################################
@@ -63,7 +66,7 @@ if ( defined $opt{include} ) {
 
 if ( defined $opt{package} ) {
     $params{package} = $opt{package};
-    $params{execute} = "use $params{package};";
+    $params{execute} = "use $params{package};\n";
 }
 
 if ( defined $opt{execute} ) {
@@ -72,45 +75,38 @@ if ( defined $opt{execute} ) {
         if ( $params{execute} !~ /;$/ ) {
             $params{execute} .= ';';
         }
+        $params{execute} .= "\n";
     }
 }
 
-if ( defined $opt{exit} ) {
-    $params{execute} .= 'exit;';
-}
+$params{execute} .= 'exit;' if defined $opt{exit};
+$params{lexical} = 1             if defined $opt{lexical};
+$params{prompt}  = $opt{prompt}  if defined $opt{prompt};
+$params{session} = $opt{session} if defined $opt{session};
 
 # if ( defined $opt{interact} ) {
-
-    # my @temp;
-    # if ( defined $opt{words} ) {
-        # while (<STDIN>) {
-            # chomp $_;
-            # my @p = parse_line( '\s+', 0, $_ );
-            # push @temp, @p;
-        # }
-        # if ( !defined $temp[$#temp] ) {
-            # pop @temp;
-        # }
-    # } else {
-        # while (<STDIN>) {
-            # chomp $_;
-            # push @temp, $_;
-        # }
-    # }
-
-    # $params{argv} = \@temp;
+#     my @temp;
+#     if ( defined $opt{words} ) {
+#         while (<STDIN>) {
+#             chomp $_;
+#             my @p = parse_line( '\s+', 0, $_ );
+#             push @temp, @p;
+#         }
+#         if ( !defined $temp[$#temp] ) {
+#             pop @temp;
+#         }
+#     } else {
+#         while (<STDIN>) {
+#             chomp $_;
+#             push @temp, $_;
+#         }
+#     }
+#     $params{argv} = \@temp;
 # }
 
-if ( defined $opt{lexical} ) {
-    $params{lexical} = 1;
-}
-
-if ( defined $opt{prompt} ) {
-    $params{prompt} = $opt{prompt};
-}
-
 my $shell = PerlApp::Shell->new( %params,
-    skipvars => [qw(%LexPersist:: %ModRefresh:: %ShellCommands:: $AUTOLOAD)] );
+    skipvars => [qw(%LexPersist:: %ModRefresh:: %ShellCommands:: $AUTOLOAD)]
+);
 $shell->run();
 
 __END__
@@ -151,6 +147,9 @@ Creates an interactive Perl shell.
 
  -p prompt            Prompt for the shell.
  --prompt
+
+ -s file              Session command log file.
+ --session
 
 =cut
 
