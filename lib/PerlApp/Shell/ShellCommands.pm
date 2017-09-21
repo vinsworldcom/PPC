@@ -9,10 +9,6 @@ our $caller = caller;
 
 my $PerlApp_Shell_ShellCommands = "
 package $caller;
-use strict;
-use warnings;
-
-use AutoLoader;
 
 our \$AUTOLOAD;
 
@@ -20,7 +16,7 @@ sub AUTOLOAD {
     my \$program = \$AUTOLOAD;
     my \$retType = wantarray;
 
-    \$program =~ s/.*:://;
+    \$program =~ s/^.*:://;
     my \@rets = `\$program \@_`;
 
     if ( not defined \$retType ) {
@@ -60,7 +56,7 @@ PerlApp::Shell::ShellCommands - Perl Shell Commands from OS Shell
 =head1 DESCRIPTION
 
 B<PerlApp::Shell::ShellCommands> provides an extension to B<PerlApp::Shell> to 
-run commands from the operating system shell.
+run commands from the operating system shell in the PerlApp::Shell.
 
 =head1 SEE ALSO
 

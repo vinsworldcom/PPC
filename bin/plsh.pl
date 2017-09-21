@@ -43,8 +43,7 @@ if ( defined $opt_versions ) {
       # Start Additional USE
 ##################################################
       "    PerlApp::Shell      $PerlApp::Shell::VERSION\n",
-
-      #      "    Text::ParseWords    $Text::ParseWords::VERSION\n",
+#      "    Text::ParseWords    $Text::ParseWords::VERSION\n",
 ##################################################
       # End Additional USE
 ##################################################
@@ -132,8 +131,9 @@ Creates an interactive Perl shell.
  -E                   Exit after -e commands complete.
  --exit
 
- -e                   Valid Perl to execute.  Multiple statements 
- --execute            semicolon-separated and multiple -e allowed.
+ -e                   Valid Perl to execute.  Multiple valid Perl  
+ --execute            statements (semicolon-separated) and multiple 
+                      -e allowed.
 
  -I dir               Specify directory to prepend @INC.  Multiple 
  --Include            -I allowed.
@@ -160,6 +160,7 @@ Creates an interactive Perl shell.
 
  --help               Print Options and Arguments.
  --man                Print complete man page.
+ --versions           Print Modules, Perl, OS, Program info.
 
 =head1 ORDER
 
@@ -185,6 +186,8 @@ If -E, add "exit;" to end of -e.
 
 =head1 EXAMPLES
 
+The following two examples accomplish the same thing.
+
 =head2 Command Line
 
  plsh.pl -e "print join ' ', @ARGV;" -E hello world
@@ -193,6 +196,11 @@ If -E, add "exit;" to end of -e.
 
  C:\> plsh.pl
  Perl> print "hello world";
+ Perl> exit;
+
+=head1 SEE ALSO
+
+L<PerlApp::Shell>
 
 =head1 LICENSE
 

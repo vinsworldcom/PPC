@@ -12,7 +12,6 @@ use Time::HiRes qw( usleep );
 use Net::Frame::Simple 1.06;
 use Net::Pcap 0.17;
 
-use AutoLoader;
 our $AUTOLOAD;
 
 use Exporter;
