@@ -97,7 +97,7 @@ PerlApp::Shell::LexPersist - Perl Shell Lexical Environment
 =head1 SYNOPSIS
 
  use PerlApp::Shell;
- $shell = PerlApp::Shell->new(
+ my $shell = PerlApp::Shell->new(
      -lex => 1;
  );
  $shell->run;
@@ -131,6 +131,10 @@ B<PerlApp::Shell> C<run> method.
 =head1 ACKNOWLEDGEMENTS
 
 This module is lifted from B<Perl::Shell>.
+
+=head1 SEE ALSO
+
+L<PerlApp::Shell>
 
 =head1 LICENSE
 

@@ -62,6 +62,10 @@ PerlApp::Shell::ShellCommands - Perl Shell Commands from OS Shell
 B<PerlApp::Shell::ShellCommands> provides an extension to B<PerlApp::Shell> to 
 run commands from the operating system shell.
 
+=head1 SEE ALSO
+
+L<PerlApp::Shell>
+
 =head1 LICENSE
 
 This software is released under the same terms as Perl itself.

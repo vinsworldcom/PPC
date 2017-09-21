@@ -178,7 +178,7 @@ PerlApp::Config - Perl Shell Config
 =head1 SYNOPSIS
 
  use PerlApp::Config;
- $config = PerlApp::Config->new(
+ my $config = PerlApp::Config->new(
      key => 'value'
  );
  print $config->config;

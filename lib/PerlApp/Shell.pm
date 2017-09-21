@@ -588,14 +588,56 @@ PerlApp::Shell - Perl Shell
 =head1 SYNOPSIS
 
  use PerlApp::Shell;
- $shell = PerlApp::Shell->new();
+ my $shell = PerlApp::Shell->new();
  $shell->run;
 
 =head1 DESCRIPTION
 
-B<PerlApp::Shell> creates an interactive shell in a Perl environment.  From 
-it, Perl commands can be executed.  There are some additional commands 
+B<PerlApp::Shell> creates an interactive Perl shell.  From it, 
+Perl commands can be executed.  There are some additional commands 
 helpful in any interactive shell.
+
+=head2 Why Yet Another Perl Shell?
+
+I needed an interactive Perl Shell for some Perl applications I was 
+writing and found several options on CPAN:
+
+=over 2
+
+=item *
+
+Perl::Shell
+
+=item *
+
+perlconsole
+
+=item *
+
+Devel::REPL
+
+=back
+
+All of which are excellent modules, but none had everything I wanted 
+without a ton of external dependencies.  I didn't want that trade off; 
+I wanted functions B<without> dependencies.
+
+I also wanted to emulate a shell - not necessarily a REPL 
+(Read-Evaluate-Parse-Loop).  In the way sh, Bash, csh and others *nix or 
+cmd.exe on Windows are a shell - I wanted a Perl Shell.  For example, 
+many of the above modules will evaluate an expression:
+
+ 5+1
+ 6
+
+If I enter "5+1" in cmd.exe or Bash, I don't get 6, I get an error.  In a 
+Perl program, if I have a line "5+1;", I get an error in execution.  If I 
+really want "6", I need to "print 5+1;".  And so it should be in the Perl 
+Shell.
+
+This is much closer to a command prompt / terminal than a REPL.  As such, 
+some basic shell commands are provided, like 'ls', 'cd' and 'pwd' for 
+example.
 
 =head1 CAVEATS
 
@@ -616,7 +658,7 @@ Valid options are:
   Option     Description                             Default
   ------     -----------                             -------
   -execute   Valid Perl code ending statements with  (none)
-             semicolon (;). May use @ARGV.
+             semicolon (;).
   -homedir   Specify home directory.                 $ENV{HOME} or
              Used for `cd' with no argument.         $ENV{USERPROFILE}
   -lexical   Require "my" for variables.             (off)
@@ -636,8 +678,9 @@ Run the shell.  Provides interactive environment for entering commands.
 
 =head1 COMMANDS
 
-In the interactive shell, all Perl commands can be entered.  The following 
-are also provided.
+In the interactive shell, all valid Perl commands can be entered.  This 
+includes constructs like 'for () {}' and 'if () {} ... else {}' as well 
+as any subs from 'use'ed modules.  The following are also provided.
 
 =over 4
 

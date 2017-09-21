@@ -76,6 +76,7 @@ PerlApp::Shell::ModRefresh - Perl Shell Module Refresh
 =head1 SYNOPSIS
 
  use PerlApp::Shell;
+ my $shell = PerlApp::Shell->new();
  $shell->run;
 
 =head1 DESCRIPTION
@@ -100,6 +101,10 @@ B<PerlApp::Shell> C<run> method.
 =item B<refresh_module>
 
 =back
+
+=head1 SEE ALSO
+
+L<PerlApp::Shell>
 
 =head1 LICENSE
 
