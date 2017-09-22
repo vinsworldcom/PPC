@@ -1111,7 +1111,8 @@ Load them: C<use Win32::Interface qw(:subs)>:
 
 =head1 SEE ALSO
 
-L<IO::Interface>, L<Net::Interface>, L<Win32::IPHelper>, L<Net::Libdnet>
+L<IO::Interface>, L<Net::Interface>, L<Win32::IPHelper>, L<Win32::IPConfig>, 
+L<Net::Libdnet>
 
 =head1 LICENSE
 
