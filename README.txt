@@ -84,7 +84,7 @@ This should work "out of the box" on Win32 provided the above modules'
 requirements are met.  This is essentially why I developed this in the 
 first place - packet crafting on Windows after XP discontinued raw socket 
 support.  I developed, tested and currently run this on Windows (from XP to 
-7, both 32- and 64-bit flavors with Strawberry Perl 5.16 and later in both 
+10, both 32- and 64-bit flavors with Strawberry Perl 5.16 and up in both 
 32- and 64-bit flavors).
 
 For *nix installations, this *may* work for IPv4 depending on the Net::Pcap 
