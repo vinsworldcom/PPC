@@ -13,7 +13,9 @@ our $VERSION = "0.07";
 
 use Cwd;
 use Term::ReadLine;
-use Exporter;
+use Data::Dumper;
+$Data::Dumper::Sortkeys = 1;
+
 my $HAVE_LexPersist = 0;
 eval "use PerlApp::Shell::LexPersist";
 if ( !$@ ) {
@@ -25,6 +27,7 @@ if ( !$@ ) {
     $HAVE_ModRefresh = 1;
 }
 
+use Exporter;
 our @EXPORT
   = qw (cd cls clear dir error help ls modules pwd session variables);
 
@@ -184,7 +187,7 @@ sub run {
         # debug multiline
         if ( $PerlApp_Shell->{shellCmdLine} =~ /\ndebug$/ ) {
             $PerlApp_Shell->{shellCmdLine} =~ s/debug$//;
-            print "$PerlApp_Shell->{shellCmdLine}\n";
+            print Dumper $PerlApp_Shell;
             next;
         }
 
