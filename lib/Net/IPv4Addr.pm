@@ -159,9 +159,10 @@ sub ipv4_parse($;$) {
     ($msk) = $_[0] =~ m!/(.+)!o;
   }
 
+  my $ip4err = $ip; # assignment below overwrites $ip to undef if chkip fails
   # Remove white spaces
   $ip = ipv4_chkip( $ip ) or
-    croak __PACKAGE__, ": invalid IPv4 address: ", $ip, "\n";
+    croak __PACKAGE__, ": invalid IPv4 address: ", $ip4err, "\n";
   $msk =~ s/\s//g if defined $msk;
 
   # Check Netmask to see if it is a CIDR or Network
@@ -523,14 +524,22 @@ the first one and it implements the following semantics :
 
 Trap bad input with C<eval> or else.
 
-=item ipv4_checkip
+=item ipv4_chkip
 
-    if ($ip = ipv4_checkip($str) ) {
+    if ($ip = ipv4_chkip($str) ) {
 	# Do something
     }
 
 Return the IPv4 address in the string or undef if the input 
 doesn't contains a valid IPv4 address.
+
+=item ipv4_dflt_netmask
+
+    my $netmask = ipv4_dflt_netmask( $str );
+
+Returns the netmask corresponding to IPv4 address in the string based 
+on IPv4 classful assignments.  As usual, croaks if it doesn't like your 
+input (in this an invalid IPv4 address).
 
 =item ipv4_cidr2msk
 

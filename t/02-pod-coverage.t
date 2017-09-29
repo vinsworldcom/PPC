@@ -1,4 +1,4 @@
-eval "use Test::Pod::Coverage tests => 45";
+eval "use Test::Pod::Coverage tests => 49";
 if ($@) {
    use Test;
    plan(tests => 1);
@@ -42,6 +42,7 @@ else {
    pod_coverage_ok("PPC::Plugin");
    pod_coverage_ok("PPC::Plugin::DSCP");
    pod_coverage_ok("PPC::Plugin::Gnuplot");
+   pod_coverage_ok("PPC::Plugin::GeoIP");
    pod_coverage_ok("PPC::Plugin::ICMPv4TypeCode");
    pod_coverage_ok("PPC::Plugin::ICMPv6TypeCode");
    pod_coverage_ok("PPC::Plugin::IPv4Options");
@@ -56,4 +57,8 @@ else {
    pod_coverage_ok("PPC::Plugin::TCPScan");
    pod_coverage_ok("PPC::Plugin::TextTable");
    pod_coverage_ok("PPC::Plugin::Trace");
+
+   pod_coverage_ok("Net::IPv4Addr");
+   pod_coverage_ok("Net::Frame::Layer::PIM");
+   pod_coverage_ok("Net::Frame::Layer::ICMPv6::Option");
 }
