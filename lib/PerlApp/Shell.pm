@@ -9,7 +9,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = "0.07";
+our $VERSION = "0.08";
 
 use Cwd;
 use Term::ReadLine;
@@ -29,11 +29,9 @@ if ( !$@ ) {
 
 use Exporter;
 our @EXPORT
-  = qw (cd cls clear dir error help ls modules pwd session variables);
+  = qw (cd cls clear dir help ls modules pwd session variables);
 
 our @ISA = qw ( Exporter );
-
-our $LASTERROR;
 
 sub _shellCommands {
     return (
@@ -42,7 +40,6 @@ sub _shellCommands {
         clear     => 'clear screen',
         debug     => 'print command',
         dir       => 'directory listing',
-        error     => 'print last error',
         exit      => 'exit shell',
         help      => 'shell help - print this',
         ls        => 'directory listing',
@@ -292,10 +289,7 @@ sub run {
         }
 
         # error from execute?
-        if ($@) {
-            warn $@;
-            $LASTERROR = $PerlApp_Shell->{shellCmdLine};
-        }
+        warn $@ if ($@);
 
         # logging if requested and no error
         if ( defined( $ENV{PERLSHELL_SESSION} ) and !$@ ) {
@@ -315,21 +309,9 @@ sub run {
         }
 
         # reset to normal before next input
+        $PerlApp_Shell->{shellLastCmd} = $PerlApp_Shell->{shellCmdLine};
         undef $PerlApp_Shell->{shellCmdLine};
         print "\n";
-    }
-}
-
-sub error {
-    my $err = $LASTERROR;
-    undef $LASTERROR;
-
-    if ( defined wantarray ) {
-        return $err;
-    } else {
-        if ( defined $err ) {
-            print $err . "\n";
-        }
     }
 }
 
@@ -521,7 +503,6 @@ sub session {
 sub variables {
 
     my %SKIP = (
-        '$LASTERROR' => 1,
         '$VERSION'   => 1,
         '@ISA'       => 1,
         '@EXPORT'    => 1
@@ -670,8 +651,8 @@ Valid options are:
              commands as if in this package.
   -prompt    Shell prompt.                           Perl>
   -session   Session file to log commands.           (none)
-  -skipvars  Variables to ignore in `variables'      $LASTERROR, @ISA,
-             command.                                $VERSION, @EXPORT
+  -skipvars  Variables to ignore in `variables'      $VERSION, @ISA,
+             command.                                @EXPORT
 
 =head2 run() - run the shell
 
@@ -710,10 +691,6 @@ be used as C<debug> only, no semicolon starting at first position in input.
 Directory listing.  'OPTIONS' are system directory listing command options.  
 Optional return value is array of output.
 
-=item B<error>
-
-Print last error.
-
 =item B<exit>
 
 Exit shell.
@@ -745,7 +722,7 @@ List user defined variables currently active in current package in shell.
 
 =head1 EXPORT
 
-cd, cls, clear, dir, error, help, ls, modules, pwd, session, variables
+cd, cls, clear, dir, help, ls, modules, pwd, session, variables
 
 =head1 EXAMPLES
 
