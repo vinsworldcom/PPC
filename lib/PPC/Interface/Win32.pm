@@ -3,9 +3,9 @@ package PPC::Interface::Win32;
 use strict;
 use warnings;
 
-use Win32::Interface;
+use Win32::Net::Info;
 our @ISA;
-unshift @ISA, "Win32::Interface";
+unshift @ISA, "Win32::Net::Info";
 
 1;
 
@@ -26,7 +26,7 @@ module to handle the interface subroutines on Win32 architectures.
 
 =head1 SEE ALSO
 
-L<Win32::Interface>
+L<Win32::Net::Info>
 
 =head1 ACKNOWLEDGEMENTS
 

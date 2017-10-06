@@ -17,43 +17,54 @@ Net::Pcap
 Net::Frame
 Net::Frame::Simple
 
+... AND some network interface module:
+
+  Windows => Win32::Net::Info
+  Linux   => IO::Interface::Simple
+  other   => (see PPC::Interface::Example)
+
   Recommended:
 
-  Net::Frame::Layer::8021Q
-  Net::Frame::Layer::ICMPv4
-  Net::Frame::Layer::ICMPv6
-  Net::Frame::Layer::IPv6
-  Net::Frame::Layer::LLC
-  Net::Frame::Layer::STP
+    Net::Frame::Layer::8021Q
+    Net::Frame::Layer::ICMPv4
+    Net::Frame::Layer::ICMPv6
+    Net::Frame::Layer::ICMPv6::MLD
+    Net::Frame::Layer::IPv6
+    Net::Frame::Layer::LLC
+    Net::Frame::Layer::STP
 
   Additional:
 
-  Net::Frame::Layer::CDP
-  Net::Frame::Layer::DNS
-  Net::Frame::Layer::HSRP
-  Net::Frame::Layer::IGMP
-  Net::Frame::Layer::OSPF
-  Net::Frame::Layer::RIP
-  Net::Frame::Layer::RIPng
-  Net::Frame::Layer::SNMP
-  Net::Frame::Layer::Syslog
+    Net::Frame::Layer::CDP
+    Net::Frame::Layer::DNS
+    Net::Frame::Layer::HSRP
+    Net::Frame::Layer::IGMP
+    Net::Frame::Layer::MPLS
+    Net::Frame::Layer::NTP
+    Net::Frame::Layer::OSPF
+    Net::Frame::Layer::RIP
+    Net::Frame::Layer::RIPng
+    Net::Frame::Layer::SNMP
+    Net::Frame::Layer::Syslog
+    Net::Frame::Layer::VRRP
 
   Plugins:
 
-  Array::Transpose
-  Chart::Gnuplot
-  Geo::IP
-  Text::Table
+    Array::Transpose
+    Chart::Gnuplot
+    Geo::IP
+    Text::Table
 
 Dependencies of all above modules should install automatically via CPAN.
 
 
 INSTALLATION:
 
-This program can be run as-is with no installation simply by putting all 
-contents as-is in a directory and running the bin/ppc.pl script from 
-anywhere (given the full path to the script if it is not in your path).  
-Alternatively, you can do a proper Perl installation:
+This program can be run as-is with no installation providing the above 
+dependencies are met simply by putting all contents as-is in a directory 
+and running the bin/ppc.pl script from anywhere (given the full path to 
+the script if it is not in your path).  Alternatively, you can do a 
+proper Perl installation:
 
   perl Makefile.PL
   make
@@ -61,7 +72,7 @@ Alternatively, you can do a proper Perl installation:
   make install
 
 This will copy the appropriate files to your appropriate Perl installation 
-locations.
+locations and automatically install all dependencies.
 
 
 CAVEATS:

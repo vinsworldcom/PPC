@@ -26,7 +26,7 @@ eval "use Net::Frame::Layer::ICMPv4 $minver_ICMPv4 qw( :consts )";
 if ( !$@ ) {
     $HAVE_ICMPv4 = 1;
 }
-my $minver_ICMPv6 = 1.09;
+my $minver_ICMPv6 = 1.10;
 my $HAVE_ICMPv6   = 0;
 eval "use Net::Frame::Layer::ICMPv6 $minver_ICMPv6 qw( :consts )";
 if ( !$@ ) {

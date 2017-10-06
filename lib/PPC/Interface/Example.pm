@@ -34,7 +34,7 @@ use warnings;
 #
 # ->error                  Last error message
 # ->dump                   Show all paramaters
-#     Using Win32::Interface for example, ->dump produces:
+#     Using Win32::Net::Info for example, ->dump produces:
 #
 #     'adaptername' => '{73777781-5FB3-4C71-944A-AAAABBBB8AA7}'
 #     'description' => 'Dell Wireless 1397 WLAN Mini-Card'

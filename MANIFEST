@@ -115,7 +115,6 @@ lib/PerlApp/Shell.pm
 lib/PerlApp/Shell/LexPersist.pm
 lib/PerlApp/Shell/ModRefresh.pm
 lib/PerlApp/Shell/ShellCommands.pm
-lib/Win32/Interface.pm
 t/00-interfaces.t
 t/01-use.t
 t/02-pod-coverage.t
