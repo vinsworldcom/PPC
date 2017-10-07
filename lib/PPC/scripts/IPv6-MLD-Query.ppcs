@@ -1,0 +1,44 @@
+# IPv6 MLD query
+
+if (!(MAC6_GW && MAC_SRC && IPv6_SRC)) {
+    print "Run `interface' command first\n";
+    return
+}
+
+use Net::Frame::Layer::IPv6::HopByHop;
+use Net::Frame::Layer::ICMPv6::MLD qw(:consts);
+use PPC::Plugin::IPv6Options;
+
+print "What group to query? ";
+my $name = <STDIN>;
+chomp $name;
+print "\n";
+
+$name = $name || 'ff38::1';
+
+if (!getHostIpv6Addr($name)) { return; }
+
+$ether  = ETHER6(dst=>NF_MLD_ALLMLDRTRS_MAC);
+$ipv6   = IPv6(
+    src=>IPv6_SRC_LL,
+    dst=>NF_MLD_ALLMLDRTRS,
+    hopLimit=>1,
+    nextHeader=>NF_IPv6_PROTOCOL_IPv6HOPBYHOP
+);
+$hop    = Net::Frame::Layer::IPv6::HopByHop->new(
+    nextHeader=>NF_IPv6_PROTOCOL_ICMPv6,
+    options=>[
+        IPv6RTRALERT,
+        Net::Frame::Layer::IPv6::Option->new()
+    ]
+);    
+$icmpv6 = ICMPv6(NF_ICMPv6_TYPE_MLDQUERY);
+$mld    = Net::Frame::Layer::ICMPv6::MLD->new(
+    groupAddress => $name
+);
+$query = Net::Frame::Layer::ICMPv6::MLD::Query->new();
+
+$packet = packet $ether,$ipv6,$hop,$icmpv6,$mld,$query;
+
+decode $packet;
+print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";
