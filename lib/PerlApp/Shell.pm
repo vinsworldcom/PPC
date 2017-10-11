@@ -28,8 +28,8 @@ if ( !$@ ) {
 }
 
 use Exporter;
-our @EXPORT
-  = qw (cd cls clear dir help ls modules pwd session variables);
+our @EXPORT = qw (cd cls clear commands dir dumper help 
+                  ls modules pwd session variables);
 
 our @ISA = qw ( Exporter );
 
@@ -38,8 +38,10 @@ sub _shellCommands {
         cd        => 'change directory',
         cls       => 'clear screen',
         clear     => 'clear screen',
+        commands  => 'print available "commands" (sub)',
         debug     => 'print command',
         dir       => 'directory listing',
+        dumper    => 'use Data::Dumper to display variable',
         exit      => 'exit shell',
         help      => 'shell help - print this',
         ls        => 'directory listing',
@@ -128,7 +130,7 @@ sub run {
 
     # handle session if requested
     if ( defined $PerlApp_Shell->{session} ) {
-        if ( !defined session( $PerlApp_Shell->{session} ) ) {
+        if ( not defined session( $PerlApp_Shell->{session} ) ) {
             croak("Cannot open session file `$PerlApp_Shell->{session}'");
         }
     }
@@ -177,7 +179,7 @@ sub run {
 
         # exit
         if ( $PerlApp_Shell->{shellCmdLine} =~ /^\s*exit\s*(;)?\s*$/ ) {
-            if ( !defined $1 ) { $PerlApp_Shell->{shellCmdLine} .= ';'; }
+            if ( not defined $1 ) { $PerlApp_Shell->{shellCmdLine} .= ';'; }
             last;
         }
 
@@ -323,7 +325,7 @@ sub cd {
     my ($arg) = @_;
 
     my $ret = getcwd;
-    if ( !defined $arg ) {
+    if ( not defined $arg ) {
         chdir $ENV{PERLSHELL_HOME};
     } else {
         if ( -e $arg ) {
@@ -349,6 +351,54 @@ sub clear {
     }
 }
 
+sub commands {
+    my ($arg) = @_;
+
+    my @rets;
+    my $retType = wantarray;
+
+    my $stash = $ENV{PERLSHELL_PACKAGE} . '::';
+
+    no strict 'refs';
+
+    my $regex = qr/^.*$/;
+    if ( defined($arg) ) {
+        $regex = qr/$arg/;
+    }
+
+    for my $name ( sort( keys( %{$stash} ) ) ) {
+        next if ( $name =~ /^_/ );
+
+        my $sub = *{"${stash}${name}"}{CODE};
+        next unless defined $sub;
+
+        my $proto = prototype($sub);
+        next if defined $proto and length($proto) == 0;
+
+        if ( $name =~ /$regex/ ) {
+            push @rets, $name;
+        }
+    }
+
+    if ( not defined $retType ) {
+        for ( @rets ) {
+            print "$_\n";
+        }
+    } elsif ($retType) {
+        return @rets;
+    } else {
+        return \@rets;
+    }
+}
+
+sub dumper {
+    my (@dump) = @_;
+
+    use Data::Dumper;
+    $Data::Dumper::Sortkeys = 1;
+    print Dumper @dump;
+}
+
 sub help {
     my %cmds = _shellCommands();
     for my $h ( sort( keys(%cmds) ) ) {
@@ -363,16 +413,14 @@ sub dir {
 sub ls {
     my (@arg) = @_;
 
-    my $dircmd;
+    my $dircmd = 'ls';
     if ( $^O eq "MSWin32" ) {
         $dircmd = 'dir';
-    } else {
-        $dircmd = 'ls';
     }
 
     my @ret;
     my $retType = wantarray;
-    if ( !defined $retType ) {
+    if ( not defined $retType ) {
         system( $dircmd, @arg );
     } else {
         @ret = `$dircmd @arg`;
@@ -391,29 +439,18 @@ sub modules {
     my $retType = wantarray;
 
     my $FOUND = 0;
-    for my $m ( sort( keys(%INC) ) ) {
-        my $t = $m;
-        $t =~ s/\//::/g;
-        $t =~ s/\.pm$//;
-        my $value = $INC{$m};
+    for my $module ( sort( keys(%INC) ) ) {
+        my $path = $INC{$module};
+        $module =~ s/\//::/g;
+        $module =~ s/\.pm$//;
 
         if ( defined $arg ) {
-            if ( $t =~ /$arg/ ) {
-                if ( !defined $retType ) {
-                    printf "$t %s\n",
-                      ( defined $value ) ? $value : "[NOT LOADED]";
-                } else {
-                    $rets{$t} = $value;
-                }
+            if ( $module =~ /$arg/ ) {
+                $rets{$module} = $path;
                 $FOUND = 1;
             }
         } else {
-            if ( !defined $retType ) {
-                printf "$t %s\n",
-                  ( defined $value ) ? $value : "[NOT LOADED]";
-            } else {
-                $rets{$t} = $value;
-            }
+            $rets{$module} = $path;
             $FOUND = 1;
         }
     }
@@ -423,8 +460,11 @@ sub modules {
           ( defined $arg ) ? " - `$arg'\n" : "\n";
     }
 
-    if ( !defined $retType ) {
-        return;
+    if ( not defined $retType ) {
+        for my $module ( sort( keys(%rets) ) ) {
+            printf "$module %s\n",
+              ( defined $rets{$module} ) ? $rets{$module} : "[NOT LOADED]"; 
+        }
     } elsif ($retType) {
         return %rets;
     } else {
@@ -433,7 +473,7 @@ sub modules {
 }
 
 sub pwd {
-    if ( !defined wantarray ) {
+    if ( not defined wantarray ) {
         print getcwd;
     } else {
         return getcwd;
@@ -443,14 +483,14 @@ sub pwd {
 sub session {
     my ($arg) = @_;
 
-    if ( !defined $arg ) {
+    if ( not defined $arg ) {
         if ( defined $ENV{PERLSHELL_SESSION} ) {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print $ENV{PERLSHELL_SESSION} . "\n";
             }
             return $ENV{PERLSHELL_SESSION};
         } else {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print "No current session file\n";
             }
             return undef;
@@ -459,22 +499,22 @@ sub session {
 
     if ( $arg eq ":close" ) {
         if ( defined $ENV{PERLSHELL_SESSION} ) {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print "$ENV{PERLSHELL_SESSION} closed\n";
             }
             $ENV{PERLSHELL_SESSION} = undef;
             return;
         } else {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print "No current session file\n";
             }
             return undef;
         }
     }
 
-    if ( !defined $ENV{PERLSHELL_SESSION} ) {
+    if ( not defined $ENV{PERLSHELL_SESSION} ) {
         if ( -e $arg ) {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print "File `$arg' exists - will append\n";
             }
         }
@@ -482,18 +522,18 @@ sub session {
         if ( open( my $fh, '>>', $arg ) ) {
             close $fh;
             $ENV{PERLSHELL_SESSION} = $arg;
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print $ENV{PERLSHELL_SESSION} . "\n";
             }
             return $ENV{PERLSHELL_SESSION};
         } else {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print "Cannot open file `$arg' for writing\n";
             }
             return undef;
         }
     } else {
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print "Session file already open - `$ENV{PERLSHELL_SESSION}'\n";
         }
         return;
@@ -503,9 +543,9 @@ sub session {
 sub variables {
 
     my %SKIP = (
-        '$VERSION'   => 1,
-        '@ISA'       => 1,
-        '@EXPORT'    => 1
+        '$VERSION' => 1,
+        '@ISA'     => 1,
+        '@EXPORT'  => 1
     );
 
     if ( !exists $ENV{PERLSHELL_PACKAGE} ) {
@@ -525,31 +565,21 @@ sub variables {
     no strict 'refs';
     for my $var ( sort( keys( %{$ENV{PERLSHELL_PACKAGE} . '::'} ) ) ) {
         if ( defined( ${$ENV{PERLSHELL_PACKAGE} . "::$var"} )
-            and !defined( $SKIP{'$' . $var} ) ) {
-            if ( !defined $retType ) {
-                print "\$$var\n";
-            } else {
-                push @rets, "\$$var";
-            }
+            and not defined( $SKIP{'$' . $var} ) ) {
+            push @rets, "\$$var";
         } elsif ( @{$ENV{PERLSHELL_PACKAGE} . "::$var"}
-            and !defined( $SKIP{'@' . $var} ) ) {
-            if ( !defined $retType ) {
-                print "\@$var\n";
-            } else {
-                push @rets, "\@$var";
-            }
+            and not defined( $SKIP{'@' . $var} ) ) {
+            push @rets, "\@$var";
         } elsif ( %{$ENV{PERLSHELL_PACKAGE} . "::$var"}
-            and !defined( $SKIP{'%' . $var} ) ) {
-            if ( !defined $retType ) {
-                print "\%$var\n";
-            } else {
-                push @rets, "\%$var";
-            }
+            and not defined( $SKIP{'%' . $var} ) ) {
+            push @rets, "\%$var";
         }
     }
 
-    if ( !defined $retType ) {
-        return;
+    if ( not defined $retType ) {
+        for ( @rets ) {
+            print "$_\n";
+        }
     } elsif ($retType) {
         return @rets;
     } else {
@@ -679,6 +709,12 @@ Optional return value is current directory (directory before change).
 
 Clear screen.
 
+=item B<commands> [('SEARCH')]
+
+Displays available commands.  Commands are essentially 'sub's defined 
+in the current package.  With 'SEARCH', displays matching commands.  
+Optional return value is array with commands.
+
 =item B<debug>
 
 Print command so far (don't execute) at multiline input 'More?' prompt.  Must 
@@ -690,6 +726,10 @@ be used as C<debug> only, no semicolon starting at first position in input.
 
 Directory listing.  'OPTIONS' are system directory listing command options.  
 Optional return value is array of output.
+
+=item B<dumper> $var
+
+Displays B<$var> with Data::Dumper.
 
 =item B<exit>
 

@@ -139,59 +139,6 @@ use Net::Pcap 0.17;
 
 ########################################################
 
-sub commands {
-    my ($arg) = @_;
-
-    if ( defined($arg) and ( $arg eq $PPC_GLOBALS->{help_cmd} ) ) {
-        _help( __PACKAGE__, "COMMANDS/commands - list commands" );
-    }
-
-    my @rets;
-    my $retType = wantarray;
-
-    my $cmd;
-    my $stash = __PACKAGE__ . '::';
-
-    no strict 'refs';
-
-    my $regex = qr/^.*$/;
-    if ( defined($arg) ) {
-        $regex = qr/$arg/;
-    }
-
-    for my $name ( sort( keys( %{$stash} ) ) ) {
-        next if ( $name =~ /^_/ );
-
-        my $sub = *{"${stash}${name}"}{CODE};
-        next unless defined $sub;
-
-        my $proto = prototype($sub);
-        next if defined $proto and length($proto) == 0;
-
-        if ( $name =~ /$regex/ ) {
-            if ( !defined($retType) ) {
-                print "$name\n";
-            } else {
-                $cmd->{$name}++;
-            }
-        }
-    }
-
-    if ( defined($retType) ) {
-        for ( sort( keys( %{$cmd} ) ) ) {
-            push @rets, $_;
-        }
-    }
-
-    if ( !defined($retType) ) {
-        return;
-    } elsif ($retType) {
-        return @rets;
-    } else {
-        return \@rets;
-    }
-}
-
 sub config {
     if ( @_ == 1 ) {
         my ($arg) = @_;
@@ -359,18 +306,6 @@ sub devices {
     } else {
         return \@rets;
     }
-}
-
-sub dumper {
-    my (@dump) = @_;
-
-    if ( !defined( $dump[0] )
-        or ( $dump[0] eq $PPC_GLOBALS->{help_cmd} ) ) {
-        _help( __PACKAGE__,
-            "COMMANDS/dumper - use Data::Dumper to dump variable" );
-    }
-    $Data::Dumper::Sortkeys = 1;
-    print Dumper @dump;
 }
 
 sub file {
@@ -1004,12 +939,6 @@ At a minimum, the required packages in addition to core modules are:
 
 =head1 COMMANDS
 
-=head2 commands - list commands
-
- commands ["regex"]
-
-List available commands.  Optional regular expression filters returns.
-
 =head2 config - manipulate configuration
 
  config ["OPTIONS"]
@@ -1082,12 +1011,6 @@ to be set manually when constructing packets.
  devices
 
 List available network devices.
-
-=head2 dumper - use Data::Dumper to dump variable
-
- dumper $var
-
-Displays B<$var> with Data::Dumper.
 
 =head2 file - open file
 
