@@ -1,4 +1,4 @@
-package PerlApp::Shell::ModRefresh;
+package App::PerlShell::ModRefresh;
 
 ########################################################
 # AUTHOR = Michael Vincent
@@ -71,26 +71,27 @@ __END__
 
 =head1 NAME
 
-PerlApp::Shell::ModRefresh - Perl Shell Module Refresh
+App::PerlShell::ModRefresh - Perl Shell Module Refresh
 
 =head1 SYNOPSIS
 
- use PerlApp::Shell;
- my $shell = PerlApp::Shell->new();
+ use App::PerlShell;
+ my $shell = App::PerlShell->new();
  $shell->run;
 
 =head1 DESCRIPTION
 
-B<PerlApp::Shell::ModRefresh> provides an extension to B<PerlApp::Shell> to 
-automatically refresh used modules if they change on disk between commands 
-issued at the shell prompt.  It uses B<Module::Refresh> to accomplish this.  
-If B<Module::Refresh> is not installed, this feature is not available.
+B<App::PerlShell::ModRefresh> provides an extension to 
+B<App::PerlShell> to automatically refresh used modules if they 
+change on disk between commands issued at the shell prompt.  It uses 
+B<Module::Refresh> to accomplish this.  If B<Module::Refresh> is not 
+installed, this feature is not available.
 
 =head1 METHODS
 
 Several methods and accessors are provided and some override the 
 B<Module::Refresh> ones.  These are called as-needed from the 
-B<PerlApp::Shell> C<run> method.
+B<App::PerlShell> C<run> method.
 
 =over 4
 
@@ -104,7 +105,7 @@ B<PerlApp::Shell> C<run> method.
 
 =head1 SEE ALSO
 
-L<PerlApp::Shell>
+L<App::PerlShell>
 
 =head1 LICENSE
 

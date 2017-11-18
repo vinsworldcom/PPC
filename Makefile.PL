@@ -7,7 +7,7 @@ if ( $^O eq 'linux' ) {
     # could also add Term::ReadLine::Gnu here for the terminal history,
     # but it *does* work without it and I had to apt-get ncurses and
     # readline development libraries so it would compile.  There is a
-    # note in the CAVEAT section of PerlApp::Shell PerlDoc.
+    # note in the CAVEAT section of App::PerlShell PerlDoc.
     $addPREREQ_PM{'IO::Interface::Simple'} = 1.08;
 } elsif ( $^O eq 'MSWin32' ) {
     $addPREREQ_PM{'Win32::Net::Info'} = 1.00;
@@ -29,7 +29,7 @@ WriteMakefile(
         'Net::Pcap'          => 0.17,
         'Net::Frame'         => 1.17,
         'Net::Frame::Simple' => 1.08,
-       #'PerlApp::Shell' => 0.08,
+       #'App::PerlShell' => 0.10,
         %addPREREQ_PM
     },                               # e.g., Module::Name => 1.1
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005

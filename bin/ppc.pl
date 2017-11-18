@@ -81,12 +81,12 @@ At a minimum, the required packages in addition to core modules are:
  -i ifName    Friendly name of the interface to use.
  --interface
 
-For additional options, see L<PerlApp::Shell> and B<plsh>.
+For additional options, see L<App::PerlShell> and B<plsh>.
 
 =head1 COMMANDS
 
 Once in the B<PPC> shell, additional commands are available.  See B<PPC> 
-and B<PerlApp::Shell> for details.
+and B<App::PerlShell> for details.
 
 =head1 EXAMPLES
 
@@ -146,7 +146,7 @@ and edit the sequence number in each packet.  Send and receive.
 
 =head1 SEE ALSO
 
-L<PerlApp::Shell>, L<PPC>, L<PPC::Interface>, L<PPC::Layer>, 
+L<App::PerlShell>, L<PPC>, L<PPC::Interface>, L<PPC::Layer>, 
 L<PPC::Macro>, L<PPC::Packet>, L<PPC::Packet::SRP>, L<PPC::Plugin>
 
 =head1 ACKNOWLEDGEMENTS

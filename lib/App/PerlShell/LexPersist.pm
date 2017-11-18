@@ -1,4 +1,4 @@
-package PerlApp::Shell::LexPersist;
+package App::PerlShell::LexPersist;
 
 ########################################################
 # AUTHOR = Michael Vincent
@@ -17,7 +17,7 @@ our $PACKAGE = undef;
 sub new {
     my $class = shift;
 
-    my $package = 'PerlApp::Shell';
+    my $package = 'App::PerlShell';
     my %params;
     if ( @_ == 1 ) {
         ($package) = @_;
@@ -63,7 +63,7 @@ package $package;
 $code
 
 BEGIN {
-	\$PerlApp::Shell::LexPersist::PACKAGE = __PACKAGE__;
+	\$App::PerlShell::LexPersist::PACKAGE = __PACKAGE__;
 }
 END_PERL
 
@@ -92,19 +92,19 @@ __END__
 
 =head1 NAME
 
-PerlApp::Shell::LexPersist - Perl Shell Lexical Environment
+App::PerlShell::LexPersist - Perl Shell Lexical Environment
 
 =head1 SYNOPSIS
 
- use PerlApp::Shell;
- my $shell = PerlApp::Shell->new(
+ use App::PerlShell;
+ my $shell = App::PerlShell->new(
      -lex => 1;
  );
  $shell->run;
 
 =head1 DESCRIPTION
 
-B<PerlApp::Shell::LexPersist> provides an extension to B<PerlApp::Shell> to 
+B<App::PerlShell::LexPersist> provides an extension to B<App::PerlShell> to 
 allow using "my" variables with persistent state across each command line.  
 It uses B<Lexical::Persistence> to accomplish this.
 
@@ -112,7 +112,7 @@ It uses B<Lexical::Persistence> to accomplish this.
 
 Several methods and accessors are provided and some override the 
 B<Lexical::Persistence> ones.  These are called as-needed from the 
-B<PerlApp::Shell> C<run> method.
+B<App::PerlShell> C<run> method.
 
 =over 4
 
@@ -134,7 +134,7 @@ This module is lifted from B<Perl::Shell>.
 
 =head1 SEE ALSO
 
-L<PerlApp::Shell>
+L<App::PerlShell>
 
 =head1 LICENSE
 

@@ -5,8 +5,7 @@ use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 use Pod::Usage;
 
-use PerlApp::Shell;
-
+use App::PerlShell;
 #use Text::ParseWords;    # quotewords()
 
 my %opt;
@@ -34,7 +33,7 @@ if ( defined $opt_versions ) {
     print
       "\nModules, Perl, OS, Program info:\n",
       "  $0\n",
-      "  Version               $PerlApp::Shell::VERSION\n",
+      "  Version               $App::PerlShell::VERSION\n",
       "    strict              $strict::VERSION\n",
       "    warnings            $warnings::VERSION\n",
       "    Getopt::Long        $Getopt::Long::VERSION\n",
@@ -42,7 +41,6 @@ if ( defined $opt_versions ) {
 ##################################################
       # Start Additional USE
 ##################################################
-      "    PerlApp::Shell      $PerlApp::Shell::VERSION\n",
 #      "    Text::ParseWords    $Text::ParseWords::VERSION\n",
 ##################################################
       # End Additional USE
@@ -103,7 +101,7 @@ $params{session} = $opt{session} if defined $opt{session};
 #     $params{argv} = \@temp;
 # }
 
-my $shell = PerlApp::Shell->new( %params,
+my $shell = App::PerlShell->new( %params,
     skipvars => [qw(%LexPersist:: %ModRefresh:: %ShellCommands:: $AUTOLOAD)]
 );
 $shell->run();
@@ -200,7 +198,7 @@ The following two examples accomplish the same thing.
 
 =head1 SEE ALSO
 
-L<PerlApp::Shell>
+L<App::PerlShell>
 
 =head1 LICENSE
 

@@ -1,4 +1,4 @@
-package PerlApp::Config;
+package App::PerlShell::Config;
 
 ########################################################
 # AUTHOR = Michael Vincent
@@ -8,8 +8,6 @@ package PerlApp::Config;
 use strict;
 use warnings;
 use Carp;
-
-our $VERSION = "0.08";
 
 use Exporter;
 
@@ -173,12 +171,12 @@ __END__
 
 =head1 NAME
 
-PerlApp::Config - Perl Shell Config
+App::PerlShell::Config - Perl Shell Config
 
 =head1 SYNOPSIS
 
- use PerlApp::Config;
- my $config = PerlApp::Config->new(
+ use App::PerlShell::Config;
+ my $config = App::PerlShell::Config->new(
      key => 'value'
  );
  print $config->config;
@@ -188,32 +186,32 @@ PerlApp::Config - Perl Shell Config
 
 =head1 DESCRIPTION
 
-B<PerlApp::Config> creates a global configuration structure for 
-B<PerlApp::Shell> applications.
+B<App::PerlShell::Config> creates a global configuration structure for 
+B<App::PerlShell> applications.
 
 =head1 METHODS
 
 =head2 new() - create a new Config object
 
-  my $config = PerlApp::Config->new(
+  my $config = App::PerlShell::Config->new(
       key1 => 'value1',
       key2 => 'value2',
       ...
   );
 
-Create a new B<PerlApp::Config> object with provided key / value pairs as 
-configuration options.
+Create a new B<App::PerlShell::Config> object with provided key / value 
+pairs as configuration options.
 
 =head2 config() - get / set configuration parameters
 
   [$c =] $config->config([OPTIONS]);
 
 Get or set configuration parameters configured with C<new>.  This allows a 
-user of B<PerlApp::Shell> to manipulate configuration parameters but not add 
-new ones with this method interface.
+user of B<App::PerlShell> to manipulate configuration parameters but 
+not add new ones with this method interface.
 
-In a B<PerlApp::Shell> program / module, one may choose to subclass this 
-method with:
+In a B<App::PerlShell> program / module, one may choose to subclass 
+this method with:
 
   sub config {
       $config->config(@_)
@@ -227,9 +225,9 @@ Get all:
   [$i =] $config->config();
   [%i =] $config->config();
 
-Called with no options, returns all configuration parameters as reference or 
-hash, depending on how it's called.  In B<PerlApp::Shell>, called with no 
-return value simply prints all configuration parameters.
+Called with no options, returns all configuration parameters as reference 
+or hash, depending on how it's called.  In B<App::PerlShell>, 
+called with no return value simply prints all configuration parameters.
 
 Get one:
 
@@ -248,7 +246,7 @@ Sets the value of C<key> to 'new_value' and returns the previous value.
 
   $config->add(key [,value]);
 
-Add 'key' with optional 'value' to the B<PerlApp::Config> object.  If 
+Add 'key' with optional 'value' to the B<App::PerlShell::Config> object.  If 
 'value' not provided, 'key' is added with value undef.  Returns 1 on success, 
 0 on failure.
 
@@ -256,15 +254,15 @@ Add 'key' with optional 'value' to the B<PerlApp::Config> object.  If
 
   [$c =] $config->delete(key);
 
-Delete 'key' from the B<PerlApp::Config> object.  Returns 1 on success, 
+Delete 'key' from the B<App::PerlShell::Config> object.  Returns 1 on success, 
 0 on failure.
 
 =head2 exists() - check for existence of configuration parameters
 
   [$c =] $config->exists(key);
 
-Check if 'key' exists in the B<PerlApp::Config> object.  Returns 1 if yes, 
-0 if not.
+Check if 'key' exists in the B<App::PerlShell::Config> object.  Returns 1 
+if yes, 0 if not.
 
 =head1 SUBROUTINES
 
@@ -305,11 +303,11 @@ If no configuration file is found, returns undefined.
 
 Subroutine C<config_where> can be exported by calling use with:
 
-  use PerlApp::Config qw(config_where);
+  use App::PerlShell::Config qw(config_where);
 
 =head1 SEE ALSO
 
-B<PerlApp::Shell>
+B<App::PerlShell>
 
 =head1 LICENSE
 

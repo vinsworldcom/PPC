@@ -1,4 +1,4 @@
-package PerlApp::Shell::ShellCommands;
+package App::PerlShell::AddOns::ShellCommands;
 
 ########################################################
 # AUTHOR = Michael Vincent
@@ -7,7 +7,7 @@ package PerlApp::Shell::ShellCommands;
 
 our $caller = caller;
 
-my $PerlApp_Shell_ShellCommands = "
+my $App_PerlShell_AddOns_ShellCommands = "
 package $caller;
 
 our \$AUTOLOAD;
@@ -34,7 +34,7 @@ sub DESTROY { return }
 1;
 ";
 
-eval $PerlApp_Shell_ShellCommands;
+eval $App_PerlShell_AddOns_ShellCommands;
 
 1;
 
@@ -46,21 +46,22 @@ __END__
 
 =head1 NAME
 
-PerlApp::Shell::ShellCommands - Perl Shell Commands from OS Shell
+App::PerlShell::AddOns::ShellCommands - Perl Shell Commands from OS Shell
 
 =head1 SYNOPSIS
 
- plsh> use PerlApp::Shell::ShellCommands;
+ plsh> use App::PerlShell::AddOns::ShellCommands;
  plsh> cat('filename.txt');
 
 =head1 DESCRIPTION
 
-B<PerlApp::Shell::ShellCommands> provides an extension to B<PerlApp::Shell> to 
-run commands from the operating system shell in the PerlApp::Shell.
+B<App::PerlShell::AddOns::ShellCommands> provides an extension to 
+B<App::PerlShell> to run commands from the operating system shell 
+in the App::PerlShell.
 
 =head1 SEE ALSO
 
-L<PerlApp::Shell>
+L<App::PerlShell>
 
 =head1 LICENSE
 

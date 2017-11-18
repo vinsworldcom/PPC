@@ -1,4 +1,4 @@
-package PerlApp::Shell;
+package App::PerlShell;
 
 ########################################################
 # AUTHOR = Michael Vincent
@@ -9,7 +9,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = "0.08";
+our $VERSION = "0.10";
 
 use Cwd;
 use Term::ReadLine;
@@ -17,19 +17,19 @@ use Data::Dumper;
 $Data::Dumper::Sortkeys = 1;
 
 my $HAVE_LexPersist = 0;
-eval "use PerlApp::Shell::LexPersist";
+eval "use App::PerlShell::LexPersist";
 if ( !$@ ) {
     $HAVE_LexPersist = 1;
 }
 my $HAVE_ModRefresh = 0;
-eval "use PerlApp::Shell::ModRefresh";
+eval "use App::PerlShell::ModRefresh";
 if ( !$@ ) {
     $HAVE_ModRefresh = 1;
 }
 
 use Exporter;
-our @EXPORT = qw (cd cls clear commands dir dumper help 
-                  ls modules pwd session variables);
+our @EXPORT = qw (cd cls clear commands dir dumper help
+  ls modules pwd session variables);
 
 our @ISA = qw ( Exporter );
 
@@ -102,7 +102,7 @@ sub new {
     if ($lex) {
         if ($HAVE_LexPersist) {
             $params{shellLexEnv}
-              = PerlApp::Shell::LexPersist->new( $params{package} );
+              = App::PerlShell::LexPersist->new( $params{package} );
         } else {
             croak(
                 "-lexical specified, `Lexical::Persistence' required but not found"
@@ -126,23 +126,25 @@ sub new {
 }
 
 sub run {
-    my $PerlApp_Shell = shift;
+    my $App_PerlShell_Shell = shift;
 
     # handle session if requested
-    if ( defined $PerlApp_Shell->{session} ) {
-        if ( not defined session( $PerlApp_Shell->{session} ) ) {
-            croak("Cannot open session file `$PerlApp_Shell->{session}'");
+    if ( defined $App_PerlShell_Shell->{session} ) {
+        if ( not defined session( $App_PerlShell_Shell->{session} ) ) {
+            croak(
+                "Cannot open session file `$App_PerlShell_Shell->{session}'");
         }
     }
 
-    if ( exists $PerlApp_Shell->{shellLexEnv} ) {
-        $PerlApp_Shell->{shell}
-          = $PerlApp_Shell->{shellLexEnv}->get_package();
+    if ( exists $App_PerlShell_Shell->{shellLexEnv} ) {
+        $App_PerlShell_Shell->{shell}
+          = $App_PerlShell_Shell->{shellLexEnv}->get_package();
     } else {
-        $PerlApp_Shell->{shell} = $ENV{PERLSHELL_PACKAGE};
+        $App_PerlShell_Shell->{shell} = $ENV{PERLSHELL_PACKAGE};
     }
-    $PerlApp_Shell->{shell} = Term::ReadLine->new( $PerlApp_Shell->{shell} );
-    $PerlApp_Shell->{shell}->ornaments(0);
+    $App_PerlShell_Shell->{shell}
+      = Term::ReadLine->new( $App_PerlShell_Shell->{shell} );
+    $App_PerlShell_Shell->{shell}->ornaments(0);
 
     #'use strict' is not used to allow "$p=" instead of "my $p=" at the prompt
     no strict 'vars';
@@ -152,124 +154,132 @@ sub run {
 
         # do ... while loop won't support next and last
         # First check then clear {execute} to autopopulate
-        # $PerlApp_Shell->{shellCmdLine}
+        # $App_PerlShell_Shell->{shellCmdLine}
         # otherwise, just do the readline.
 
-        if ( defined $PerlApp_Shell->{execute} ) {
-            $PerlApp_Shell->{shellCmdLine} = $PerlApp_Shell->{execute};
+        if ( defined $App_PerlShell_Shell->{execute} ) {
+            $App_PerlShell_Shell->{shellCmdLine}
+              = $App_PerlShell_Shell->{execute};
 
             # clear - it will never happen again
-            delete $PerlApp_Shell->{execute};
+            delete $App_PerlShell_Shell->{execute};
         } else {
-            $PerlApp_Shell->{shellCmdLine}
-              .= $PerlApp_Shell->{shell}->readline(
-                ( defined $PerlApp_Shell->{shellCmdLine} )
+            $App_PerlShell_Shell->{shellCmdLine}
+              .= $App_PerlShell_Shell->{shell}->readline(
+                ( defined $App_PerlShell_Shell->{shellCmdLine} )
                 ? 'More? '
                 : $ENV{PERLSHELL_PROMPT}
               );
         }
 
-        chomp $PerlApp_Shell->{shellCmdLine};
+        chomp $App_PerlShell_Shell->{shellCmdLine};
 
         # nothing
-        if ( $PerlApp_Shell->{shellCmdLine} =~ /^\s*$/ ) {
-            undef $PerlApp_Shell->{shellCmdLine};
+        if ( $App_PerlShell_Shell->{shellCmdLine} =~ /^\s*$/ ) {
+            undef $App_PerlShell_Shell->{shellCmdLine};
             next;
         }
 
         # exit
-        if ( $PerlApp_Shell->{shellCmdLine} =~ /^\s*exit\s*(;)?\s*$/ ) {
-            if ( not defined $1 ) { $PerlApp_Shell->{shellCmdLine} .= ';'; }
+        if ( $App_PerlShell_Shell->{shellCmdLine} =~ /^\s*exit\s*(;)?\s*$/ ) {
+            if ( not defined $1 ) {
+                $App_PerlShell_Shell->{shellCmdLine} .= ';';
+            }
             last;
         }
 
         # debug multiline
-        if ( $PerlApp_Shell->{shellCmdLine} =~ /\ndebug$/ ) {
-            $PerlApp_Shell->{shellCmdLine} =~ s/debug$//;
-            print Dumper $PerlApp_Shell;
+        if ( $App_PerlShell_Shell->{shellCmdLine} =~ /\ndebug$/ ) {
+            $App_PerlShell_Shell->{shellCmdLine} =~ s/debug$//;
+            print Dumper $App_PerlShell_Shell;
             next;
         }
 
         # variables if in -lexical
-        if ( exists $PerlApp_Shell->{shellLexEnv} ) {
-            if ( $PerlApp_Shell->{shellCmdLine} =~ /^\s*variables\s*;\s*$/ ) {
+        if ( exists $App_PerlShell_Shell->{shellLexEnv} ) {
+            if ( $App_PerlShell_Shell->{shellCmdLine}
+                =~ /^\s*variables\s*;\s*$/ ) {
                 for my $var (
                     sort( keys(
-                            %{  $PerlApp_Shell->{shellLexEnv}
+                            %{  $App_PerlShell_Shell->{shellLexEnv}
                                   ->get_context('_')
                             }
                     ) )
                   ) {
                     print "$var\n";
                 }
-                undef $PerlApp_Shell->{shellCmdLine};
+                undef $App_PerlShell_Shell->{shellCmdLine};
                 next;
             }
         }
 
         # Complete statement
-        %{$PerlApp_Shell->{shellCmdComplete}} = (
+        %{$App_PerlShell_Shell->{shellCmdComplete}} = (
             'parenthesis' => 0,
             'bracket'     => 0,
             'brace'       => 0
         );
-        if ( my @c = ( $PerlApp_Shell->{shellCmdLine} =~ /\(/g ) ) {
-            $PerlApp_Shell->{shellCmdComplete}->{parenthesis}
+        if ( my @c = ( $App_PerlShell_Shell->{shellCmdLine} =~ /\(/g ) ) {
+            $App_PerlShell_Shell->{shellCmdComplete}->{parenthesis}
               += scalar(@c);
         }
-        if ( my @c = ( $PerlApp_Shell->{shellCmdLine} =~ /\)/g ) ) {
-            $PerlApp_Shell->{shellCmdComplete}->{parenthesis}
+        if ( my @c = ( $App_PerlShell_Shell->{shellCmdLine} =~ /\)/g ) ) {
+            $App_PerlShell_Shell->{shellCmdComplete}->{parenthesis}
               -= scalar(@c);
         }
-        if ( my @c = ( $PerlApp_Shell->{shellCmdLine} =~ /\[/g ) ) {
-            $PerlApp_Shell->{shellCmdComplete}->{bracket} += scalar(@c);
+        if ( my @c = ( $App_PerlShell_Shell->{shellCmdLine} =~ /\[/g ) ) {
+            $App_PerlShell_Shell->{shellCmdComplete}->{bracket} += scalar(@c);
         }
-        if ( my @c = ( $PerlApp_Shell->{shellCmdLine} =~ /\]/g ) ) {
-            $PerlApp_Shell->{shellCmdComplete}->{bracket} -= scalar(@c);
+        if ( my @c = ( $App_PerlShell_Shell->{shellCmdLine} =~ /\]/g ) ) {
+            $App_PerlShell_Shell->{shellCmdComplete}->{bracket} -= scalar(@c);
         }
-        if ( my @c = ( $PerlApp_Shell->{shellCmdLine} =~ /\{/g ) ) {
-            $PerlApp_Shell->{shellCmdComplete}->{brace} += scalar(@c);
+        if ( my @c = ( $App_PerlShell_Shell->{shellCmdLine} =~ /\{/g ) ) {
+            $App_PerlShell_Shell->{shellCmdComplete}->{brace} += scalar(@c);
         }
-        if ( my @c = ( $PerlApp_Shell->{shellCmdLine} =~ /\}/g ) ) {
-            $PerlApp_Shell->{shellCmdComplete}->{brace} -= scalar(@c);
+        if ( my @c = ( $App_PerlShell_Shell->{shellCmdLine} =~ /\}/g ) ) {
+            $App_PerlShell_Shell->{shellCmdComplete}->{brace} -= scalar(@c);
         }
 
-        if ((      ( $PerlApp_Shell->{shellCmdLine} =~ /,\s*$/ )
-                or ( $PerlApp_Shell->{shellCmdComplete}->{parenthesis} != 0 )
-                or ( $PerlApp_Shell->{shellCmdComplete}->{bracket} != 0 )
-                or ( $PerlApp_Shell->{shellCmdComplete}->{brace} != 0 )
+        if ((   ( $App_PerlShell_Shell->{shellCmdLine} =~ /,\s*$/ )
+                or ( $App_PerlShell_Shell->{shellCmdComplete}->{parenthesis}
+                    != 0 )
+                or
+                ( $App_PerlShell_Shell->{shellCmdComplete}->{bracket} != 0 )
+                or ( $App_PerlShell_Shell->{shellCmdComplete}->{brace} != 0 )
             )
             or
 
             # valid endings are ; or }, but only if all groupings are closed
-            (       ( $PerlApp_Shell->{shellCmdLine} !~ /(;|\})\s*$/ )
-                and ( $PerlApp_Shell->{shellCmdComplete}->{parenthesis} == 0 )
-                and ( $PerlApp_Shell->{shellCmdComplete}->{bracket} == 0 )
-                and ( $PerlApp_Shell->{shellCmdComplete}->{brace} == 0 )
+            (   ( $App_PerlShell_Shell->{shellCmdLine} !~ /(;|\})\s*$/ )
+                and ( $App_PerlShell_Shell->{shellCmdComplete}->{parenthesis}
+                    == 0 )
+                and
+                ( $App_PerlShell_Shell->{shellCmdComplete}->{bracket} == 0 )
+                and ( $App_PerlShell_Shell->{shellCmdComplete}->{brace} == 0 )
             )
           ) {
-            $PerlApp_Shell->{shellCmdLine} .= "\n";
+            $App_PerlShell_Shell->{shellCmdLine} .= "\n";
             next;
         }
 
         # import subs if not default package
         # use redundant code in the if block so no variables are
         # created at top level in case we're not using LexPersist
-        if ( exists $PerlApp_Shell->{shellLexEnv} ) {
-            if ( $PerlApp_Shell->{shellLexEnv}->get_package() ne __PACKAGE__ )
-            {
-                my $sp = $PerlApp_Shell->{shellLexEnv}->get_package();
+        if ( exists $App_PerlShell_Shell->{shellLexEnv} ) {
+            if ( $App_PerlShell_Shell->{shellLexEnv}->get_package() ne
+                __PACKAGE__ ) {
+                my $sp = $App_PerlShell_Shell->{shellLexEnv}->get_package();
                 my $p  = __PACKAGE__;
                 eval "package $sp; $p->import;";
                 if ($HAVE_ModRefresh) {
-                    PerlApp::Shell::ModRefresh->refresh($sp);
+                    App::PerlShell::ModRefresh->refresh($sp);
                 }
             }
 
             # execute
             eval {
-                $PerlApp_Shell->{shellLexEnv}
-                  ->do( $PerlApp_Shell->{shellCmdLine} );
+                $App_PerlShell_Shell->{shellLexEnv}
+                  ->do( $App_PerlShell_Shell->{shellCmdLine} );
             };
         } else {
             if ( $ENV{PERLSHELL_PACKAGE} ne __PACKAGE__ ) {
@@ -277,17 +287,17 @@ sub run {
                 my $p  = __PACKAGE__;
                 eval "package $sp; $p->import;";
                 if ($HAVE_ModRefresh) {
-                    PerlApp::Shell::ModRefresh->refresh($sp);
+                    App::PerlShell::ModRefresh->refresh($sp);
                 }
             }
-            $PerlApp_Shell->{shellCmdLine}
+            $App_PerlShell_Shell->{shellCmdLine}
               = "package "
               . $ENV{PERLSHELL_PACKAGE} . ";\n"
-              . $PerlApp_Shell->{shellCmdLine}
+              . $App_PerlShell_Shell->{shellCmdLine}
               . "\nBEGIN {\$ENV{PERLSHELL_PACKAGE} = __PACKAGE__}";
 
             # execute
-            eval $PerlApp_Shell->{shellCmdLine};
+            eval $App_PerlShell_Shell->{shellCmdLine};
         }
 
         # error from execute?
@@ -297,22 +307,23 @@ sub run {
         if ( defined( $ENV{PERLSHELL_SESSION} ) and !$@ ) {
 
             # don't log session start command
-            $PerlApp_Shell->{shellCmdLine} =~ s/\s*session\s*.*//;
+            $App_PerlShell_Shell->{shellCmdLine} =~ s/\s*session\s*.*//;
 
             # clean up command if we added stuff while not in -lex mode
-            $PerlApp_Shell->{shellCmdLine} =~ s/^package .*;\n//;
-            $PerlApp_Shell->{shellCmdLine}
+            $App_PerlShell_Shell->{shellCmdLine} =~ s/^package .*;\n//;
+            $App_PerlShell_Shell->{shellCmdLine}
               =~ s/(?:\n)?BEGIN \{\$ENV\{PERLSHELL_PACKAGE\} = __PACKAGE__\}//;
 
             open( my $OUT, '>>', $ENV{PERLSHELL_SESSION} );
-            print $OUT "$PerlApp_Shell->{shellCmdLine}\n"
-              if ( $PerlApp_Shell->{shellCmdLine} ne '' );
+            print $OUT "$App_PerlShell_Shell->{shellCmdLine}\n"
+              if ( $App_PerlShell_Shell->{shellCmdLine} ne '' );
             close $OUT;
         }
 
         # reset to normal before next input
-        $PerlApp_Shell->{shellLastCmd} = $PerlApp_Shell->{shellCmdLine};
-        undef $PerlApp_Shell->{shellCmdLine};
+        $App_PerlShell_Shell->{shellLastCmd}
+          = $App_PerlShell_Shell->{shellCmdLine};
+        undef $App_PerlShell_Shell->{shellCmdLine};
         print "\n";
     }
 }
@@ -381,7 +392,7 @@ sub commands {
     }
 
     if ( not defined $retType ) {
-        for ( @rets ) {
+        for (@rets) {
             print "$_\n";
         }
     } elsif ($retType) {
@@ -463,7 +474,7 @@ sub modules {
     if ( not defined $retType ) {
         for my $module ( sort( keys(%rets) ) ) {
             printf "$module %s\n",
-              ( defined $rets{$module} ) ? $rets{$module} : "[NOT LOADED]"; 
+              ( defined $rets{$module} ) ? $rets{$module} : "[NOT LOADED]";
         }
     } elsif ($retType) {
         return %rets;
@@ -577,7 +588,7 @@ sub variables {
     }
 
     if ( not defined $retType ) {
-        for ( @rets ) {
+        for (@rets) {
             print "$_\n";
         }
     } elsif ($retType) {
@@ -597,17 +608,17 @@ __END__
 
 =head1 NAME
 
-PerlApp::Shell - Perl Shell
+App::PerlShell - Perl Shell
 
 =head1 SYNOPSIS
 
- use PerlApp::Shell;
- my $shell = PerlApp::Shell->new();
+ use App::PerlShell;
+ my $shell = App::PerlShell->new();
  $shell->run;
 
 =head1 DESCRIPTION
 
-B<PerlApp::Shell> creates an interactive Perl shell.  From it, 
+B<App::PerlShell> creates an interactive Perl shell.  From it, 
 Perl commands can be executed.  There are some additional commands 
 helpful in any interactive shell.
 
@@ -664,10 +675,10 @@ the up/down arrows will not work.
 
 =head2 new() - create a new Shell object
 
-  my $shell = PerlApp::Shell->new([OPTIONS]);
+  my $shell = App::PerlShell->new([OPTIONS]);
 
-Create a new B<PerlApp::Shell> object with OPTIONS as optional parameters.
-Valid options are:
+Create a new B<App::PerlShell> object with OPTIONS as optional 
+parameters.  Valid options are:
 
   Option     Description                             Default
   ------     -----------                             -------
@@ -677,7 +688,7 @@ Valid options are:
              Used for `cd' with no argument.         $ENV{USERPROFILE}
   -lexical   Require "my" for variables.             (off)
              Requires Lexical::Persistence
-  -package   Package to impersonate.  Execute all    PerlApp::Shell
+  -package   Package to impersonate.  Execute all    App::PerlShell
              commands as if in this package.
   -prompt    Shell prompt.                           Perl>
   -session   Session file to log commands.           (none)
@@ -772,7 +783,8 @@ provides functional execution.
 
 =head1 SEE ALSO
 
-L<PerlApp::Config>, L<PerlApp::Shell::ModRefresh>, L<PerlApp::Shell::LexPersist>
+L<App::PerlShell::Config>, L<App::PerlShell::ModRefresh>, 
+L<App::PerlShell::LexPersist>
 
 =head1 LICENSE
 

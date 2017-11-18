@@ -1,5 +1,9 @@
 Revision history for Perl Packet Crafter.
 
+1.12  Fri Nov 17 14:05:00 2017
+    - Switch to App::PerlShell
+    - Win32::Net::Info removed from distro - now on CPAN!
+
 1.11  Sat Feb 20 14:05:00 2016
     - Introduce PPC::Packet object as subclass of Net::Frame::Simple
     - AUTOLOAD accessors for Net::Frame::Layer::_objects_ in PPC::Packet
