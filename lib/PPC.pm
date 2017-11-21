@@ -30,8 +30,8 @@ for (@INC) {
     }
 }
 
-use PerlApp::Config;
-our $PPC_GLOBALS = PerlApp::Config->new(
+use App::PerlShell::Config;
+our $PPC_GLOBALS = App::PerlShell::Config->new(
     conf_file   => 'ppc.conf',
     device      => undef,
     errmode     => 'stop',                # continue, stop, debug
@@ -943,7 +943,7 @@ At a minimum, the required packages in addition to core modules are:
 
  config ["OPTIONS"]
 
-Print or modify configuration.  See B<PerlApp::Config> for details.
+Print or modify configuration.  See B<App::PerlShell::Config> for details.
 
 PPC configuration values:
 
