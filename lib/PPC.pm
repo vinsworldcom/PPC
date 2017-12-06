@@ -11,7 +11,7 @@ use warnings;
 use Pod::Find qw( pod_where );
 use Pod::Usage;
 
-our $VERSION = '1.11';
+our $VERSION = '1.12';
 
 use FindBin qw( $Bin );
 $Bin = $Bin . '/../lib';

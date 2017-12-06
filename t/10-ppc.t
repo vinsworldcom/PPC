@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 79;
+use Test::More tests => 74;
 BEGIN { use_ok('PPC') };
 
 #########################
@@ -10,15 +10,6 @@ my ( $ret, $ret1 );
 # for evals
 local $SIG{__WARN__} = sub { $ret = $_[0]; };
 local $SIG{__DIE__} = sub { $ret = $_[0]; };
-
-# commands
-$ret = PPC::commands();
-ok ( $#{$ret} > 50, "commands all" );
-$ret = PPC::commands( 'getHostIpv' );
-is( $#{$ret}, 2, "commands filter" );
-is( $ret->[0], 'getHostIpv4Addr', "commands 0" );
-is( $ret->[1], 'getHostIpv4Addrs', "commands 1" );
-is( $ret->[2], 'getHostIpv6Addr', "commands 2" );
 
 # config
 is( ref ( $ret = PPC::config() ), 'HASH', "config all" );

@@ -4,11 +4,6 @@ Makefile.PL
 README.txt
 bin/ppc.pl
 bin/plsh.pl
-lib/App/PerlShell.pm
-lib/App/PerlShell/Config.pm
-lib/App/PerlShell/LexPersist.pm
-lib/App/PerlShell/ModRefresh.pm
-lib/App/PerlShell/AddOns/ShellCommands.pm
 lib/auto/Net/IPv4Addr/autosplit.ix
 lib/Net/Frame/Layer/ICMPv6/Option.diff
 lib/Net/Frame/Layer/ICMPv6/Option.pm
@@ -59,7 +54,6 @@ lib/PPC/Plugin/TCPConnect.pm
 lib/PPC/Plugin/TCPFlags.pm
 lib/PPC/Plugin/TCPOptions.pm
 lib/PPC/Plugin/TCPScan.pm
-lib/PPC/Plugin/TextTable.pm
 lib/PPC/Plugin/Trace.pm
 lib/PPC/scripts/.ppcscriptsdir
 lib/PPC/scripts/ARP-Request.ppcs
