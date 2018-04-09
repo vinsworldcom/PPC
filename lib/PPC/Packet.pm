@@ -75,6 +75,21 @@ sub packet {
     return bless $p, __PACKAGE__;
 }
 
+sub payload {
+    my ($self) = shift;
+    my ($arg) = @_;
+
+    if ( defined($arg)
+        and ( $arg eq $PPC::PPC_GLOBALS->{help_cmd} ) ) {
+        PPC::_help( __PACKAGE__, "ACCESSORS/payload - get packet payload" );
+    }
+
+    if ( !defined wantarray ) {
+        print [$self->layers]->[-1]->payload;
+    }
+    return [$self->layers]->[-1]->payload;
+}
+
 sub sendp {
     my %params = (
         count   => 1,
@@ -717,6 +732,22 @@ example:
                       # object at layer 1 to the value of 5
 
 An error is displayed if an invalid accessor or layer is specified.
+
+=head2 payload - get packet payload
+
+ [$payload =] $packet->payload();
+
+The B<payload()> accessor is a special case which does not need a layer 
+number.  This will return the payload of the packet from whatever top level 
+layer if the payload exists.  This is essentially a shortcut for:
+
+ [$packet->layers]->[-1]->payload;
+
+B<NOTE:> This is only a getter, not a setter.  For example:
+
+ $packet->payload('set new payload');
+
+Does nothing.
 
 =head1 SEE ALSO
 
