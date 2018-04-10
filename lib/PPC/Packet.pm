@@ -35,16 +35,34 @@ __PACKAGE__->cgBuildIndices;
 sub AUTOLOAD {
     my ($self) = shift;
     $AUTOLOAD =~ s/.*:://;
-    my ($accessor, $layer) = split /([0-9]{1,})$/, $AUTOLOAD;
-    if (defined $layer) {
-        if ($layer !~ /^[0-9]{1,}$/) {
-            PPC::_error("Unknown layer - `$layer'");
+    
+    # Layer plus Accessor
+    if ( $AUTOLOAD =~ /_/ ) {
+        my ($layer, $accessor) = split /_/, $AUTOLOAD, 2;
+        for my $i ( 0 .. $#{[$self->layers]} ) {
+            my $lyr = [$self->layers]->[$i];
+            $lyr =~ s/^Net::Frame::Layer:://;
+            $lyr =~ s/:://g;
+            $lyr =~ s/=.*$//;
+            if ( lc($lyr) eq $layer ) {
+                return [$self->layers]->[$i]->$accessor(@_);
+            }
         }
+        PPC::_error("Unknown layer - `$layer'");
+
+        # Accessor plus Numeric Layer
     } else {
-        PPC::_error("No layer provided or unknown accessor - `$accessor'");
+        my ($accessor, $layer) = split /([0-9]{1,})$/, $AUTOLOAD;
+        if (defined $layer) {
+            if ($layer !~ /^[0-9]{1,}$/) {
+                PPC::_error("Unknown layer - `$layer'");
+            }
+        } else {
+            PPC::_error("No layer provided or unknown accessor - `$accessor'");
+        }
+        # DEBUG:  print "[$self->layers]->[$layer]->$accessor(@_)\n";
+        return [$self->layers]->[$layer]->$accessor(@_);
     }
-    # DEBUG:  print "[$self->layers]->[$layer]->$accessor(@_)\n";
-    return [$self->layers]->[$layer]->$accessor(@_);
 }
 
 sub DESTROY { return }
@@ -84,10 +102,7 @@ sub payload {
         PPC::_help( __PACKAGE__, "ACCESSORS/payload - get packet payload" );
     }
 
-    if ( !defined wantarray ) {
-        print [$self->layers]->[-1]->payload;
-    }
-    return [$self->layers]->[-1]->payload;
+    return [$self->layers]->[-1]->payload(@_);
 }
 
 sub sendp {
@@ -699,18 +714,20 @@ NOTE:  Optional return value overrides execution of B<wireshark> capture.
 
 Accessors are available for fields in the sublayers of C<$packet> returned 
 by the B<packet()> command above.  They are called by specifying the 
-accessor and layer of the requested value.
+accessor and layer of the requested value in one of two ways.
+
+=head2 Accessor plus Numeric Layer
 
 For example:
 
  $packet = packet ETHER,IPv4,TCP;
- print $packet->src0;    # Ethernet source MAC address
- print $packet->dst1;    # Ethernet destination MAC address
- print $packet->src1;    # IPv4 source IP address
- print $packet->dst1;    # IPv4 destination IP address
- print $packet->ttl1;    # IPv4 time to live
- print $packet->src2;    # TCP source port
- print $packet->dst2;    # TCP destination port
+ print $packet->src0;      # Ethernet source MAC address
+ print $packet->dst0;      # Ethernet destination MAC address
+ print $packet->src1;      # IPv4 source IP address
+ print $packet->dst1;      # IPv4 destination IP address
+ print $packet->ttl1;      # IPv4 time to live
+ print $packet->src2;      # TCP source port
+ print $packet->dst2;      # TCP destination port
 
 The B<packet()> command returns a B<PPC::Packet> object which contains an 
 array of B<Net::Frame::Layer::_layer_> objects.  In the above example, 
@@ -733,6 +750,35 @@ example:
 
 An error is displayed if an invalid accessor or layer is specified.
 
+=head2 Layer plus Accessor
+
+For example:
+
+ $packet = packet ETHER,IPv4,TCP;
+ print $packet->eth_src;   # Ethernet source MAC address
+ print $packet->eth_dst;   # Ethernet destination MAC address
+ print $packet->ipv4_src;  # IPv4 source IP address
+ print $packet->ipv4_dst;  # IPv4 destination IP address
+ print $packet->ipv4_ttl;  # IPv4 time to live
+ print $packet->tcp_src;   # TCP source port
+ print $packet->tcp_dst;   # TCP destination port
+
+The B<packet()> command returns a B<PPC::Packet> object which contains an 
+array of B<Net::Frame::Layer::_layer_> objects.  In the above example, 
+B<ETHER> returns a B<Net::Frame::Layer::ETH> object. The layer name is 
+derived by taking the lowercase of the layer name after C<Net::Frame::Layer::>, 
+removing any additional double-colons '::', appending an underscore '_' and 
+adding the accessor name for that respective layer.  So 'src' from the 
+B<Net::Frame::Layer::ETH> object is obtained with C<eth_src> and 'ttl' from 
+the B<Net::Frame::Layer::IPv4> object is obtained with 'ipv4_ttl'.  ICMP 
+Echo 'sequenceNumber' from the B<Net::Frame::Layer::ICMPv4::Echo> object is 
+obtained with C<icmpv4echo_sequenceNumber>.
+
+B<NOTE:> If the packet obejet contains more than one of the named layers, this 
+method will only return the value from the frist encounterd layer.  If you need 
+values from a second occurance of the given layer, see the Accessor plus 
+Numeric Layer technique above.
+
 =head2 payload - get packet payload
 
  [$payload =] $packet->payload();
@@ -742,12 +788,6 @@ number.  This will return the payload of the packet from whatever top level
 layer if the payload exists.  This is essentially a shortcut for:
 
  [$packet->layers]->[-1]->payload;
-
-B<NOTE:> This is only a getter, not a setter.  For example:
-
- $packet->payload('set new payload');
-
-Does nothing.
 
 =head1 SEE ALSO
 
