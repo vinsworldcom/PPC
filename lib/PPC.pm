@@ -224,24 +224,20 @@ sub decode {
         _error("No packet provided");
     }
 
+    my $ret;
     if ( ( ref $params{packet} ) ne "" ) {
-        if ( ( ref $params{packet} ) =~ /^Net::Frame::Layer::/ ) {
-            if ( !defined( $params{firstLayer} ) ) {
-                $params{firstLayer} = $params{packet}->layer;
-            }
-            $params{packet}->pack;
+        $ret = $params{packet};
+    } else {
+        if ( !defined( $params{firstLayer} ) ) {
+            $params{firstLayer} = 'ETH';
         }
-        $params{packet} = $params{packet}->raw;
+        
+        $ret = PPC::Packet->new(
+            raw        => $params{packet},
+            firstLayer => $params{firstLayer}
+        );
     }
 
-    if ( !defined( $params{firstLayer} ) ) {
-        $params{firstLayer} = 'ETH';
-    }
-
-    my $ret = PPC::Packet->new(
-        raw        => $params{packet},
-        firstLayer => $params{firstLayer}
-    );
     if ( defined wantarray ) {
         return $ret;
     } else {
@@ -398,9 +394,6 @@ sub hexdump {
     }
 
     if ( ( ref $p ) ne "" ) {
-        if ( ( ref $p ) =~ /^Net::Frame::Layer::/ ) {
-            $p->pack;
-        }
         $p = $p->raw;
     }
 
@@ -982,7 +975,8 @@ for details.
 
  [$ret =] decode $packet [OPTIONS]
 
-Print decode of raw B<$packet>.  Returns B<PPC::Packet> object.
+Print decode of raw B<$packet>.  Returns object passed or B<PPC::Packet> 
+object if raw data is passed.
 
   Option     Description                       Default Value
   ------     -----------                       -------------

@@ -45,7 +45,9 @@ sub AUTOLOAD {
             $lyr =~ s/:://g;
             $lyr =~ s/=.*$//;
             if ( lc($lyr) eq $layer ) {
-                return [$self->layers]->[$i]->$accessor(@_);
+                [$self->layers]->[$i]->$accessor(@_);
+                $self->pack;
+                return [$self->layers]->[$i]->$accessor;
             }
         }
         PPC::_error("Unknown layer - `$layer'");
@@ -61,7 +63,9 @@ sub AUTOLOAD {
             PPC::_error("No layer provided or unknown accessor - `$accessor'");
         }
         # DEBUG:  print "[$self->layers]->[$layer]->$accessor(@_)\n";
-        return [$self->layers]->[$layer]->$accessor(@_);
+        [$self->layers]->[$layer]->$accessor(@_);
+        $self->pack;
+        return [$self->layers]->[$layer]->$accessor;
     }
 }
 
@@ -102,7 +106,9 @@ sub payload {
         PPC::_help( __PACKAGE__, "ACCESSORS/payload - get packet payload" );
     }
 
-    return [$self->layers]->[-1]->payload(@_);
+    [$self->layers]->[-1]->payload(@_);
+    $self->pack;
+    return [$self->layers]->[-1]->payload;
 }
 
 sub sendp {
