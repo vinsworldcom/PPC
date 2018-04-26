@@ -50,7 +50,6 @@ Net::Frame::Simple
 
   Plugins:
 
-    Chart::Gnuplot
     Geo::IP
 
 Dependencies of all above modules should install automatically via CPAN.

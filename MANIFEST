@@ -41,7 +41,6 @@ lib/PPC/Packet/SRP.pm
 lib/PPC/Plugin.pm
 lib/PPC/Plugin/DSCP.pm
 lib/PPC/Plugin/GeoIP.pm
-lib/PPC/Plugin/Gnuplot.pm
 lib/PPC/Plugin/ICMPv4TypeCode.pm
 lib/PPC/Plugin/ICMPv6TypeCode.pm
 lib/PPC/Plugin/IPv4Options.pm

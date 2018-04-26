@@ -1,4 +1,4 @@
-eval "use Test::Pod::Coverage tests => 48";
+eval "use Test::Pod::Coverage tests => 47";
 if ($@) {
    use Test;
    plan(tests => 1);
@@ -41,7 +41,6 @@ else {
    pod_coverage_ok("PPC::Packet::SRP");
    pod_coverage_ok("PPC::Plugin");
    pod_coverage_ok("PPC::Plugin::DSCP");
-   pod_coverage_ok("PPC::Plugin::Gnuplot");
    pod_coverage_ok("PPC::Plugin::GeoIP");
    pod_coverage_ok("PPC::Plugin::ICMPv4TypeCode");
    pod_coverage_ok("PPC::Plugin::ICMPv6TypeCode");

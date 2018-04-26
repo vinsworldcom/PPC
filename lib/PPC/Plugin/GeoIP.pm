@@ -23,7 +23,7 @@ our @EXPORT = qw(
 
 our @ISA = qw ( PPC Exporter );
 
-# Set gnuplot global config
+# Set global config
 my $base = '/usr/local/share/GeoIP/';
 $PPC::PPC_GLOBALS->add( 'geoipdat'     => $base . 'GeoIP.dat' );
 $PPC::PPC_GLOBALS->add( 'geoipcitydat' => $base . 'GeoIPCity.dat' );
