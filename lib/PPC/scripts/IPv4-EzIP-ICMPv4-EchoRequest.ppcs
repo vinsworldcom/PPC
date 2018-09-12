@@ -1,0 +1,53 @@
+# https://tools.ietf.org/html/draft-chen-ati-adaptive-ipv4-address-space-02
+
+if (!(MAC_GW && MAC_SRC && IPv4_SRC)) {
+    print "Run `interface' command first\n";
+    return
+}
+
+use Net::Frame::Layer::ICMPv4 qw(:consts);
+use Net::Frame::Layer::ICMPv4::Echo;
+use PPC::Plugin::IPv4Options;
+
+use Getopt::Long;
+my %opt;
+GetOptions(
+    'i|ip=s'  => \$opt{ip},
+    'r|recv!' => \$opt{r},
+    's|send!' => \$opt{s},
+) or die "\n";
+$opt{s} = $opt{s} || 0;
+$opt{r} = $opt{r} || 0;
+
+if ( !defined $opt{ip} ) {
+    print "What host to ping? ";
+    $opt{ip} = <STDIN>;
+    chomp $opt{ip};
+    print "\n";
+}
+$opt{ip} = $opt{ip} || 'www.google.com';
+if (!( $opt{ip} = getHostIpv4Addr( $opt{ip} ) ) ) { return; }
+
+$ether  = ETHER;
+$ipv4   = IPv4(
+    dst=>$opt{ip},
+    protocol=>NF_IPv4_PROTOCOL_ICMPv4,
+    options=>H2S(
+        '9a06' . 
+        join( '', Net::IPv4Addr->new('240.0.0.1')->to_array ) .
+        '9b06' . 
+        join( '', Net::IPv4Addr->new('240.0.0.2')->to_array )
+    )
+);
+$icmpv4 = ICMPv4;
+$echo   = ECHOv4('echo');
+$packet = packet $ether,$ipv4,$icmpv4,$echo;
+
+if ( $opt{s} ) {
+    sendp $packet;
+} elsif ( $opt{r} ) {
+    $r = srp $packet;
+} else {
+    decode $packet;
+    print "\n\nType:\n\n  sendp \$packet\n\nto execute\n";
+}
