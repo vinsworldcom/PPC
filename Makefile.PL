@@ -29,7 +29,7 @@ WriteMakefile(
         'Net::Pcap'          => 0.17,
         'Net::Frame'         => 1.17,
         'Net::Frame::Simple' => 1.08,
-        'App::PerlShell'     => 1.03,
+        'App::PerlShell'     => 1.04,
         %addPREREQ_PM
     },                               # e.g., Module::Name => 1.1
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005

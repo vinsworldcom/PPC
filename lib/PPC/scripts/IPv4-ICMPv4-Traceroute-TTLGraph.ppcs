@@ -1,5 +1,5 @@
 use List::Util qw( min max );
-use App::PerlShell::AddOn::Gnuplot;
+use App::PerlShell::Plugin::Gnuplot;
 use PPC::Plugin::Trace;
 
 print "What host to traceroute to? ";
