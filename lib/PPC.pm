@@ -35,7 +35,6 @@ our $PPC_GLOBALS = App::PerlShell::Config->new(
     conf_file   => 'ppc.conf',
     device      => undef,
     errmode     => 'stop',                # continue, stop, debug
-    file_prefix => undef,
     help_cmd    => '-h',
     interface   => undef,
     scripts_dir => $scripts . "/PPC/scripts/",
@@ -340,13 +339,6 @@ sub file {
 
     if ( !defined $params{file} ) {
         _error("No file provided");
-    }
-
-    # if called by scripts(), we don't prepend file_prefix
-    my $sub = ( caller(1) )[3];
-    if ( ( !defined $sub or ( $sub ne 'PPC::scripts' ) )
-        and defined( $PPC_GLOBALS->{file_prefix} ) ) {
-        $params{file} = $PPC_GLOBALS->{file_prefix} . $params{file};
     }
 
     if ( -e $params{file} ) {
@@ -951,8 +943,6 @@ PPC configuration values:
                 prompt
               'debug' - print error, debug trace
                 and return prompt
-  file_prefix Prefix to prepend to all files for  (none)
-                'file' command.
   help_cmd    Text to provide as argument to any  -h
                 command to get inline help.
   interface   Interface to use data from.         (none)
@@ -1023,8 +1013,7 @@ is read and then parsed at once.
   verbose    Show file content       (1 = on)  (off)
 
 Current directory is searched unless relative or absolute path is also 
-provided.  If configuration value B<file_prefix> exists, it is prepended to 
-B<file> before opening.
+provided.
 
 To pass parameters to a file the B<argv> option can contain a string such as 
 would be present on the command line if the file was called from the command 
