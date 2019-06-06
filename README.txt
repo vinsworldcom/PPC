@@ -72,6 +72,17 @@ This will copy the appropriate files to your appropriate Perl installation
 locations and automatically install all dependencies.
 
 
+TESTING:
+
+The `make test` command above can be modified by setting environment 
+variables:
+
+    PPC_DEVELOPER = 1    : Additional developer tests
+    PPC_INTERFACE = <if> : Set to the interface to test
+    PPC_IPv6 = 1         : Perform additional IPv6 tests 
+                           (must have IPv6 address)
+
+
 CAVEATS:
 
 The Makefile.PL specifies 5.14 for Perl since this is where Socket started 

@@ -46,7 +46,7 @@ my $packet = Net::Frame::Simple->new(
         Net::Frame::Layer::TCP->new,
     ]
 );
-is( ref PPC::decode($packet), 'PPC::Packet', "decode packet" );
+is( ref PPC::decode($packet), 'Net::Frame::Simple', "decode packet" );
 is( ref PPC::decode($packet->raw), 'PPC::Packet', "decode raw" );
 
 # device
@@ -146,7 +146,7 @@ Net::Frame::Layer::TCP->new\(
 
 # scripts
 is( ref ( $ret = PPC::scripts() ), 'ARRAY', "scripts directory listing" );
-is( $#{$ret}, 52, "scripts found files" );
+is( $#{$ret}, 53, "scripts found files" );
 
 # wrpcap, rdpcap
 is( ($ret = PPC::wrpcap('out.pcap', $packet) ), 1, "wrpcap write file" );

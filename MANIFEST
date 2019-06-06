@@ -3,7 +3,6 @@ MANIFEST
 Makefile.PL
 README.txt
 bin/ppc.pl
-bin/plsh.pl
 lib/auto/Net/IPv4Addr/autosplit.ix
 lib/Net/Frame/Layer/ICMPv6/Option.diff
 lib/Net/Frame/Layer/ICMPv6/Option.pm

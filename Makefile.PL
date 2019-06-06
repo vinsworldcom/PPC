@@ -22,8 +22,7 @@ WriteMakefile(
     VERSION_FROM     => 'lib/PPC.pm',    # finds $VERSION
     ( $ExtUtils::MakeMaker::VERSION >= 6.3002 ) ? ( 'LICENSE' => 'perl', ) : (),
     EXE_FILES        => [
-        'bin/ppc.pl', 
-        'bin/plsh.pl'
+        'bin/ppc.pl'
     ],
     PREREQ_PM        => {
         'Net::Pcap'          => 0.17,
