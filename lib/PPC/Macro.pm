@@ -8,6 +8,8 @@ package PPC::Macro;
 use strict;
 use warnings;
 
+use App::PerlShell::Plugin::Macros;    # D2B, D2H, H2B, H2D, H2S, S2H
+
 use Exporter;
 
 our @EXPORT = qw(
@@ -53,7 +55,7 @@ sub MAC_SRC {
     }
 
     if ( $PPC::PPC_GLOBALS->exists("MAC_SRC") ) {
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print $PPC::PPC_GLOBALS->config("MAC_SRC") . "\n";
         } else {
             return $PPC::PPC_GLOBALS->config("MAC_SRC");
@@ -61,12 +63,12 @@ sub MAC_SRC {
     } else {
         if (    defined( $PPC::PPC_GLOBALS->config("interface") )
             and defined( $PPC::PPC_GLOBALS->config("interface")->mac ) ) {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print $PPC::PPC_GLOBALS->config("interface")->mac . "\n";
             }
             return $PPC::PPC_GLOBALS->config("interface")->mac;
         }
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print "Not defined\n";
         }
     }
@@ -94,7 +96,7 @@ sub MAC_GW {
     }
 
     if ( $PPC::PPC_GLOBALS->exists("MAC_GW") ) {
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print $PPC::PPC_GLOBALS->config("MAC_GW") . "\n";
         } else {
             return $PPC::PPC_GLOBALS->config("MAC_GW");
@@ -105,13 +107,13 @@ sub MAC_GW {
                 $PPC::PPC_GLOBALS->config("interface")->ipv4_gateway_mac
             )
           ) {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print $PPC::PPC_GLOBALS->config("interface")
                   ->ipv4_gateway_mac . "\n";
             }
             return $PPC::PPC_GLOBALS->config("interface")->ipv4_gateway_mac;
         }
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print "Not defined\n";
         }
     }
@@ -139,7 +141,7 @@ sub MAC6_GW {
     }
 
     if ( $PPC::PPC_GLOBALS->exists("MAC6_GW") ) {
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print $PPC::PPC_GLOBALS->config("MAC6_GW") . "\n";
         } else {
             return $PPC::PPC_GLOBALS->config("MAC6_GW");
@@ -150,13 +152,13 @@ sub MAC6_GW {
                 $PPC::PPC_GLOBALS->config("interface")->ipv6_gateway_mac
             )
           ) {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print $PPC::PPC_GLOBALS->config("interface")
                   ->ipv6_gateway_mac . "\n";
             }
             return $PPC::PPC_GLOBALS->config("interface")->ipv6_gateway_mac;
         }
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print "Not defined\n";
         }
     }
@@ -192,7 +194,7 @@ sub IPv4_SRC {
     }
 
     if ( $PPC::PPC_GLOBALS->exists("IPv4_SRC") ) {
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print $PPC::PPC_GLOBALS->config("IPv4_SRC") . "\n";
         } else {
             return $PPC::PPC_GLOBALS->config("IPv4_SRC");
@@ -200,12 +202,12 @@ sub IPv4_SRC {
     } else {
         if (    defined( $PPC::PPC_GLOBALS->config("interface") )
             and defined( $PPC::PPC_GLOBALS->config("interface")->ipv4 ) ) {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print $PPC::PPC_GLOBALS->config("interface")->ipv4 . "\n";
             }
             return $PPC::PPC_GLOBALS->config("interface")->ipv4;
         }
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print "Not defined\n";
         }
     }
@@ -241,7 +243,7 @@ sub IPv4_GW {
     }
 
     if ( $PPC::PPC_GLOBALS->exists("IPv4_GW") ) {
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print $PPC::PPC_GLOBALS->config("IPv4_GW") . "\n";
         } else {
             return $PPC::PPC_GLOBALS->config("IPv4_GW");
@@ -252,14 +254,14 @@ sub IPv4_GW {
                 $PPC::PPC_GLOBALS->config("interface")->ipv4_default_gateway
             )
           ) {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print $PPC::PPC_GLOBALS->config("interface")
                   ->ipv4_default_gateway . "\n";
             }
             return $PPC::PPC_GLOBALS->config("interface")
               ->ipv4_default_gateway;
         }
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print "Not defined\n";
         }
     }
@@ -279,7 +281,7 @@ sub IPv6_SRC {
         } else {
 
             # DIE  - Net::IPv6Addr croaks on error, I prefer to handle nicely
-            local $SIG{__DIE__}  = sub { return; };
+            local $SIG{__DIE__} = sub { return; };
             my $addr;
             eval { $addr = Net::IPv6Addr->new($arg); };
             if ( defined $addr ) {
@@ -293,7 +295,7 @@ sub IPv6_SRC {
     }
 
     if ( $PPC::PPC_GLOBALS->exists("IPv6_SRC") ) {
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print $PPC::PPC_GLOBALS->config("IPv6_SRC") . "\n";
         } else {
             return $PPC::PPC_GLOBALS->config("IPv6_SRC");
@@ -301,12 +303,12 @@ sub IPv6_SRC {
     } else {
         if (    defined( $PPC::PPC_GLOBALS->config("interface") )
             and defined( $PPC::PPC_GLOBALS->config("interface")->ipv6 ) ) {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print $PPC::PPC_GLOBALS->config("interface")->ipv6 . "\n";
             }
             return $PPC::PPC_GLOBALS->config("interface")->ipv6;
         }
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print "Not defined\n";
         }
     }
@@ -327,7 +329,7 @@ sub IPv6_SRC_LL {
         } else {
 
             # DIE  - Net::IPv6Addr croaks on error, I prefer to handle nicely
-            local $SIG{__DIE__}  = sub { return; };
+            local $SIG{__DIE__} = sub { return; };
             my $addr;
             eval { $addr = Net::IPv6Addr->new($arg); };
             if ( defined $addr ) {
@@ -344,7 +346,7 @@ sub IPv6_SRC_LL {
     }
 
     if ( $PPC::PPC_GLOBALS->exists("IPv6_SRC_LL") ) {
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print $PPC::PPC_GLOBALS->config("IPv6_SRC_LL") . "\n";
         } else {
             return $PPC::PPC_GLOBALS->config("IPv6_SRC_LL");
@@ -355,13 +357,13 @@ sub IPv6_SRC_LL {
                 $PPC::PPC_GLOBALS->config("interface")->ipv6_link_local
             )
           ) {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print $PPC::PPC_GLOBALS->config("interface")->ipv6_link_local
                   . "\n";
             }
             return $PPC::PPC_GLOBALS->config("interface")->ipv6_link_local;
         }
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print "Not defined\n";
         }
     }
@@ -381,7 +383,7 @@ sub IPv6_GW {
         } else {
 
             # DIE  - Net::IPv6Addr croaks on error, I prefer to handle nicely
-            local $SIG{__DIE__}  = sub { return; };
+            local $SIG{__DIE__} = sub { return; };
             my $addr;
             eval { $addr = Net::IPv6Addr->new($arg); };
             if ( defined $addr ) {
@@ -395,7 +397,7 @@ sub IPv6_GW {
     }
 
     if ( $PPC::PPC_GLOBALS->exists("IPv6_GW") ) {
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print $PPC::PPC_GLOBALS->config("IPv6_GW") . "\n";
         } else {
             return $PPC::PPC_GLOBALS->config("IPv6_GW");
@@ -406,14 +408,14 @@ sub IPv6_GW {
                 $PPC::PPC_GLOBALS->config("interface")->ipv6_default_gateway
             )
           ) {
-            if ( !defined wantarray ) {
+            if ( not defined wantarray ) {
                 print $PPC::PPC_GLOBALS->config("interface")
                   ->ipv6_default_gateway . "\n";
             }
             return $PPC::PPC_GLOBALS->config("interface")
               ->ipv6_default_gateway;
         }
-        if ( !defined wantarray ) {
+        if ( not defined wantarray ) {
             print "Not defined\n";
         }
     }
@@ -423,19 +425,18 @@ sub IPv6_GW {
 sub IPv6_PREFIX {
     my ($arg) = @_;
 
-    if ( !defined($arg)
+    if ( not defined($arg)
         or ( defined($arg) and ( $arg eq $PPC::PPC_GLOBALS->{help_cmd} ) ) ) {
-        PPC::_help( __PACKAGE__,
-            "MACROS/IPv6_PREFIX - IPv6 prefix" );
+        PPC::_help( __PACKAGE__, "MACROS/IPv6_PREFIX - IPv6 prefix" );
     }
 
     if ( defined $arg ) {
-        local $SIG{__DIE__}  = sub { return; };
+        local $SIG{__DIE__} = sub { return; };
         my $addr;
         eval { $addr = Net::IPv6Addr->new($arg); };
         if ( defined $addr ) {
-            my $prefix = join ":", ($addr->to_array)[0..3];
-            if ( !defined wantarray ) {
+            my $prefix = join ":", ( $addr->to_array )[0 .. 3];
+            if ( not defined wantarray ) {
                 print "$prefix\n";
             }
             return $prefix;
@@ -445,23 +446,22 @@ sub IPv6_PREFIX {
     }
     return undef;
 }
-    
+
 sub IPv6_HOSTID {
     my ($arg) = @_;
 
-    if ( !defined($arg)
+    if ( not defined($arg)
         or ( defined($arg) and ( $arg eq $PPC::PPC_GLOBALS->{help_cmd} ) ) ) {
-        PPC::_help( __PACKAGE__,
-            "MACROS/IPv6_HOSTID - IPv6 host ID" );
+        PPC::_help( __PACKAGE__, "MACROS/IPv6_HOSTID - IPv6 host ID" );
     }
 
     if ( defined $arg ) {
-        local $SIG{__DIE__}  = sub { return; };
+        local $SIG{__DIE__} = sub { return; };
         my $addr;
         eval { $addr = Net::IPv6Addr->new($arg); };
         if ( defined $addr ) {
-            my $prefix = join ":", ($addr->to_array)[4..7];
-            if ( !defined wantarray ) {
+            my $prefix = join ":", ( $addr->to_array )[4 .. 7];
+            if ( not defined wantarray ) {
                 print "$prefix\n";
             }
             return $prefix;
@@ -470,163 +470,11 @@ sub IPv6_HOSTID {
         }
     }
     return undef;
-}
-    
-sub D2B {
-    my ( $dec, $pad ) = @_;
-
-    if ( !defined($dec)
-        or ( defined($dec) and ( $dec eq $PPC::PPC_GLOBALS->{help_cmd} ) ) ) {
-        PPC::_help( __PACKAGE__,
-            "MACROS/D2B - convert decimal number to binary" );
-    }
-
-    my $ret;
-    if ( $dec =~ /^\d+$/ ) {
-        $ret = sprintf "%b", $dec;
-        if ( defined $pad ) {
-            if ( $pad =~ /^\d+$/ ) {
-                $pad = "0" x ( $pad - length($ret) );
-                $ret = $pad . $ret;
-            } else {
-                warn "Ignoring not a number pad `$pad'\n";
-            }
-        }
-        if ( !defined wantarray ) {
-            print "$ret\n";
-        }
-        return $ret;
-    } else {
-        PPC::_error( "Not a decimal number `$dec'" );
-    }
-}
-
-sub D2H {
-    my ($dec) = @_;
-
-    if ( !defined($dec)
-        or ( defined($dec) and ( $dec eq $PPC::PPC_GLOBALS->{help_cmd} ) ) ) {
-        PPC::_help( __PACKAGE__,
-            "MACROS/D2H - convert decimal number to hex" );
-    }
-
-    my $ret;
-    if ( $dec =~ /^\d+$/ ) {
-        $ret = sprintf "%x", $dec;
-        if ( !defined wantarray ) {
-            print "$ret\n";
-        }
-        return $ret;
-    } else {
-        PPC::_error( "Not a decimal number `$dec'" );
-    }
-}
-
-sub H2B {
-    my ( $hex, $pad ) = @_;
-
-    if ( !defined($hex)
-        or ( defined($hex) and ( $hex eq $PPC::PPC_GLOBALS->{help_cmd} ) ) ) {
-        PPC::_help( __PACKAGE__,
-            "MACROS/H2B - convert hex number to binary" );
-    }
-
-    my $ret;
-    if ( $hex =~ /^(?:0x)?[0-9a-fA-F]+$/ ) {
-        $ret = sprintf "%b", $hex;
-        if ( defined $pad ) {
-            if ( $pad =~ /^\d+$/ ) {
-                $pad = "0" x ( $pad - length($ret) );
-                $ret = $pad . $ret;
-            } else {
-                warn "Ignoring not a number pad `$pad'\n";
-            }
-        }
-        if ( !defined wantarray ) {
-            print "$ret\n";
-        }
-        return $ret;
-    } else {
-        PPC::_error( "Not a hex number `$hex'" );
-    }
-}
-
-sub H2D {
-    my ($hex) = @_;
-
-    if ( !defined($hex)
-        or ( defined($hex) and ( $hex eq $PPC::PPC_GLOBALS->{help_cmd} ) ) ) {
-        PPC::_help( __PACKAGE__,
-            "MACROS/H2D - convert hex number to decimal" );
-    }
-
-    my $ret;
-
-    # passed as number
-    if ( $hex =~ /^\d+$/ ) {
-        if ( !defined wantarray ) {
-            print "$hex\n";
-        }
-        return $hex;
-    }
-
-    # passed as string
-    if ( $hex =~ /^(?:0x)?[0-9a-fA-F]+$/ ) {
-        $ret = hex($hex);
-        if ( !defined wantarray ) {
-            print "$ret\n";
-        }
-        return $ret;
-    } else {
-        PPC::_error( "Not a hex number `$hex'" );
-    }
-}
-
-sub H2S {
-    my ($pack) = @_;
-
-    if ( !defined($pack)
-        or ( defined($pack) and ( $pack eq $PPC::PPC_GLOBALS->{help_cmd} ) ) )
-    {
-        PPC::_help( __PACKAGE__, "MACROS/H2S - convert hex to string" );
-    }
-
-    my $ret;
-    $ret = pack "H*", $pack;
-    if ( !defined wantarray ) {
-        print "$ret\n";
-    }
-    return $ret;
-}
-
-sub S2H {
-    my ($str) = @_;
-
-    if ( !defined($str)
-        or ( defined($str) and ( $str eq $PPC::PPC_GLOBALS->{help_cmd} ) ) ) {
-        PPC::_help( __PACKAGE__, "MACROS/S2H - convert string to hex" );
-    }
-
-    if ( ( ref $str ) =~ /^Net::Frame::/ ) {
-        if ( ( ref $str ) =~ /^Net::Frame::Layer::/ ) {
-            $str->pack;
-        } 
-        $str = $str->raw;
-    }
-
-    my $ret;
-    for ( split //, $str ) {
-        $ret .= sprintf "%0.2x", ord $_;
-    }
-    if ( !defined wantarray ) {
-        print "$ret\n";
-    }
-    return $ret;
 }
 
 sub _error {
     my ( $arg1, $arg2 ) = @_;
-    PPC::_error( "Not a valid $arg1 - `$arg2'" );
+    PPC::_error("Not a valid $arg1 - `$arg2'");
 }
 
 1;
@@ -647,12 +495,12 @@ PPC::Macro - Perl Packet Crafter Macro
 
 =head1 DESCRIPTION
 
-Macros are shortcuts provided to the B<PPC> shell for quick access to dynamic 
-information and transformation functions.  For example, macros provide 
-the current Ethernet MAC, IPv4/v6 (if available) addresses of the current 
+Macros are shortcuts provided to the B<PPC> shell for quick access to dynamic
+information and transformation functions.  For example, macros provide
+the current Ethernet MAC, IPv4/v6 (if available) addresses of the current
 interface set with the B<interface> command.
 
-Macros also provide quick transformations between binary, decimal and hex 
+Macros also provide quick transformations between binary, decimal and hex
 values as well as string and hex transformations.
 
 =head1 MACROS
@@ -662,7 +510,7 @@ values as well as string and hex transformations.
  [$mac_src =] MAC_SRC [MAC | :clear]
 
 Creates B<$mac_src> variable from source MAC address.  Assumes
-C<interface> command has been run.  No variable assignment prints output.  
+C<interface> command has been run.  No variable assignment prints output.
 Optional MAC sets MAC, B<:clear> uses default.
 
 =head2 MAC_GW - IPv4 default gateway MAC address
@@ -670,7 +518,7 @@ Optional MAC sets MAC, B<:clear> uses default.
  [$mac_gw =] MAC_GW [MAC | :clear]
 
 Creates B<$mac_gw> variable from IPv4 default gateway MAC address.  Assumes
-C<interface> command has been run.  No variable assignment prints output.  
+C<interface> command has been run.  No variable assignment prints output.
 Optional MAC sets MAC, B<:clear> uses default.
 
 =head2 MAC6_GW - IPv6 default gateway MAC address
@@ -678,7 +526,7 @@ Optional MAC sets MAC, B<:clear> uses default.
  [$mac6_gw =] MAC6_GW [MAC | :clear]
 
 Creates B<$mac_gw> variable from IPv6 default gateway MAC address.  Assumes
-C<interface> command has been run.  No variable assignment prints output.  
+C<interface> command has been run.  No variable assignment prints output.
 Optional MAC sets MAC, B<:clear> uses default.
 
 =head2 IPv4_SRC - source IPv4 address
@@ -686,7 +534,7 @@ Optional MAC sets MAC, B<:clear> uses default.
  [$ipv4_src =] IPv4_SRC [IPv4 | :clear]
 
 Creates B<$ipv4_src> variable from source IPv4 address.  Assumes
-C<interface> command has been run.  No variable assignment prints output.  
+C<interface> command has been run.  No variable assignment prints output.
 Optional IPv4 sets IPV4, B<:clear> uses default.
 
 =head2 IPv4_GW - IPv4 default gateway
@@ -694,7 +542,7 @@ Optional IPv4 sets IPV4, B<:clear> uses default.
  [$ipv4_gw =] IPv4_GW [IPv4 | :clear]
 
 Creates B<$ipv4_gw> variable from IPv4 default gateway.  Assumes
-C<interface> command has been run.  No variable assignment prints output.  
+C<interface> command has been run.  No variable assignment prints output.
 Optional IPv4 sets IPV4, B<:clear> uses default.
 
 =head2 IPv6_SRC - source IPv6 address
@@ -702,7 +550,7 @@ Optional IPv4 sets IPV4, B<:clear> uses default.
  [$ipv6_src =] IPv6_SRC [IPv6 | :clear]
 
 Creates B<$ipv6_src> variable from source IPv6 address.  Assumes
-C<interface> command has been run.  No variable assignment prints output.  
+C<interface> command has been run.  No variable assignment prints output.
 Optional IPv6 sets IPV6, B<:clear> uses default.
 
 =head2 IPv6_SRC_LL - source IPv6 link local address
@@ -710,7 +558,7 @@ Optional IPv6 sets IPV6, B<:clear> uses default.
  [$ipv6_src_ll =] IPv6_SRC_LL [IPv6 | :clear]
 
 Creates B<$ipv6_src_ll> variable from source IPv6 link local address.
-Assumes C<interface> command has been run.  No variable assignment 
+Assumes C<interface> command has been run.  No variable assignment
 prints output.  Optional IPv6 sets IPv6, B<:clear> uses default.
 
 =head2 IPv6_GW - IPv6 default gateway
@@ -718,74 +566,30 @@ prints output.  Optional IPv6 sets IPv6, B<:clear> uses default.
  [$ipv6_gw =] IPv6_GW [IPv6 | :clear]
 
 Creates B<$ipv6_gw> variable from IPv6 default gateway.  Assumes
-C<interface> command has been run.  No variable assignment prints output.  
+C<interface> command has been run.  No variable assignment prints output.
 Optional IPv6 sets IPv6, B<:clear> uses default.
 
 =head2 IPv6_PREFIX - IPv6 prefix
 
  [$ipv6_pfx =] IPv6_PREFIX IPv6_Addr
 
-Creates B<$ipv6_pfx> variable from the /64 prefix of the provided IPv6 
+Creates B<$ipv6_pfx> variable from the /64 prefix of the provided IPv6
 address.  No variable assignment prints output.
 
 =head2 IPv6_HOSTID - IPv6 host ID
 
  [$ipv6_hid =] IPv6_HOSTID IPv6_Addr
 
-Creates B<$ipv6_hid> variable from the /64 host ID of the provided IPv6 
+Creates B<$ipv6_hid> variable from the /64 host ID of the provided IPv6
 address.  No variable assignment prints output.
-
-=head2 D2B - convert decimal number to binary
-
- [$binary =] D2B "decimalNumber" [, padding]
-
-Creates B<$binary> variable as binary representation of B<decimalNumber>.  
-Without optional return variable simply prints output.  Optional padding 
-is total number of bits for return number.
-
-=head2 D2H - convert decimal number to hex
-
- [$hex =] D2H "decimalNumber"
-
-Creates B<$hex> variable as hex representation of B<decimalNumber>.  
-Without optional return variable simply prints output.
-
-=head2 H2B - convert hex number to binary
-
- [$binary =] H2B "hexNumber" [, padding]
-
-Creates B<$binary> variable as binary representation of B<hexNumber>.  
-Without optional return variable simply prints output.  Optional padding 
-is total number of bits for return number.
-
-=head2 H2D - convert hex number to decimal
-
- [$dec =] H2D "hexNumber"
-
-Creates B<$dec> variable as decimal representation of B<hexNumber>.  
-Without optional return variable simply prints output.
-
-=head2 H2S - convert hex to string
-
- [$pack_string =] H2S "hex_string"
-
-Creates B<$pack_string> variable from B<hex_string>.  
-Without optional return variable simply prints output.
-
-=head2 S2H - convert string to hex
-
- [$hex =] S2H "pack_string"
-
-Creates B<$hex> variable as hex representation of B<pack_string>.  
-Without optional return variable simply prints output.
 
 =head1 SEE ALSO
 
-L<PPC>, L<PPC::Macro>, L<PPC::Interface>, 
+L<PPC>, L<PPC::Macro>, L<PPC::Interface>, L<App::PerlShell::Plugin::Macros>
 
 =head1 ACKNOWLEDGEMENTS
 
-Special thanks to Patrice E<lt>GomoRE<gt> Auffret without whose 
+Special thanks to Patrice E<lt>GomoRE<gt> Auffret without whose
 Net::Frame::[...] modules, this would not be possible.
 
 =head1 LICENSE

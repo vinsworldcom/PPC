@@ -122,8 +122,8 @@ $ret = Net::Frame::Simple->new(
         Net::Frame::Layer::TCP->new,
     ]
 );
-is( PPC::Macro::S2H($sink), 'ffffffffffff0000000000000800', "S2H Net::Frame::Layer::ETH" );
-like( PPC::Macro::S2H($ret), qr/^ffffffffffff00000000000008004500/, "S2H Net::Frame::Simple" );
+is( PPC::Macro::S2H($sink->pack), 'ffffffffffff0000000000000800', "S2H Net::Frame::Layer::ETH" );
+like( PPC::Macro::S2H($ret->pack), qr/^ffffffffffff00000000000008004500/, "S2H Net::Frame::Simple" );
 
 SKIP: {
     skip "developer-only tests - set PPC_INTERFACE to interface name", 9 unless $ENV{PPC_INTERFACE};

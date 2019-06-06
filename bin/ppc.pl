@@ -37,7 +37,7 @@ if ( defined $opt_versions ) {
 
 use FindBin qw( $Bin );
 system (
-    "$Bin/plsh.pl",
+    "plsh.pl",
     '-I', "$Bin/../lib",
     '-P', 'PPC',
     '-p', 'ppc> ',
