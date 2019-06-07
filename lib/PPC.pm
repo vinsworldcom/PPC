@@ -17,9 +17,9 @@ use FindBin qw( $Bin );
 $Bin = $Bin . '/../lib';
 
 if ( exists $ENV{PERLSHELL_SKIPVARS} ) {
-    $ENV{PERLSHELL_SKIPVARS} .= ';' .
-        join ";", qw($Bin $PERMUTE $REQUIRE_ORDER $RETURN_IN_ORDER 
-        $PPC_GLOBALS %Interface:: %Layer:: %Macro:: %Packet:: %Plugin::);
+    $ENV{PERLSHELL_SKIPVARS} .= ';' . join ";",
+      qw($Bin $PERMUTE $REQUIRE_ORDER $RETURN_IN_ORDER
+      $PPC_GLOBALS %Interface:: %Layer:: %Macro:: %Packet:: %Plugin::);
 }
 
 my $scripts = $Bin;
@@ -34,7 +34,7 @@ use App::PerlShell::Config;
 our $PPC_GLOBALS = App::PerlShell::Config->new(
     conf_file   => 'ppc.conf',
     device      => undef,
-    errmode     => 'stop',                # continue, stop, debug
+    errmode     => 'stop',                       # continue, stop, debug
     help_cmd    => '-h',
     interface   => undef,
     scripts_dir => $scripts . "/PPC/scripts/",
@@ -160,7 +160,7 @@ sub constants {
     my @rets;
     my $retType = wantarray;
 
-    if ( !defined($mod) ) {
+    if ( not defined($mod) ) {
         $mod = "Net::Frame::Layer::";
     }
 
@@ -168,7 +168,7 @@ sub constants {
     for my $c ( sort( keys(%constant::declared) ) ) {
         if ( $c =~ /^$mod/ ) {
             my @p = split /::/, $c;
-            if ( !defined($retType) ) {
+            if ( not defined($retType) ) {
                 print "$p[$#p]\n";
             } else {
                 push @rets, $p[$#p];
@@ -182,7 +182,7 @@ sub constants {
         return;
     }
 
-    if ( !defined($retType) ) {
+    if ( not defined($retType) ) {
         return;
     } elsif ($retType) {
         return @rets;
@@ -219,7 +219,7 @@ sub decode {
         }
     }
 
-    if ( !defined( $params{packet} ) ) {
+    if ( not defined( $params{packet} ) ) {
         _error("No packet provided");
     }
 
@@ -227,10 +227,10 @@ sub decode {
     if ( ( ref $params{packet} ) ne "" ) {
         $ret = $params{packet};
     } else {
-        if ( !defined( $params{firstLayer} ) ) {
+        if ( not defined( $params{firstLayer} ) ) {
             $params{firstLayer} = 'ETH';
         }
-        
+
         $ret = PPC::Packet->new(
             raw        => $params{packet},
             firstLayer => $params{firstLayer}
@@ -251,9 +251,9 @@ sub device {
         _help( __PACKAGE__, "COMMANDS/device - set device" );
     }
 
-    if ( !defined($dev) ) {
-        if ( !defined( $PPC_GLOBALS->{device} ) ) {
-            if ( !defined wantarray ) {
+    if ( not defined($dev) ) {
+        if ( not defined( $PPC_GLOBALS->{device} ) ) {
+            if ( not defined wantarray ) {
                 _error("No device currently set");
             }
             return;
@@ -288,13 +288,13 @@ sub devices {
 
     my @devs = Net::Pcap::pcap_findalldevs( \%devinfo, \$err );
     for my $dev (@devs) {
-        if ( !defined($retType) ) {
+        if ( not defined($retType) ) {
             print "$dev : $devinfo{$dev}\n";
         } else {
             push @rets, $dev;
         }
     }
-    if ( !defined($retType) ) {
+    if ( not defined($retType) ) {
         return;
     } elsif ($retType) {
         return @rets;
@@ -337,7 +337,7 @@ sub file {
         }
     }
 
-    if ( !defined $params{file} ) {
+    if ( not defined $params{file} ) {
         _error("No file provided");
     }
 
@@ -380,7 +380,7 @@ sub file {
 sub hexdump {
     my ($p) = @_;
 
-    if ( !defined($p)
+    if ( not defined($p)
         or ( defined($p) and ( $p eq $PPC_GLOBALS->{help_cmd} ) ) ) {
         _help( __PACKAGE__, "COMMANDS/hexdump - print hex dump" );
     }
@@ -431,7 +431,7 @@ sub hexdump {
         $len -= 16;
     }
 
-    if ( !defined($retType) ) {
+    if ( not defined($retType) ) {
         return;
     } elsif ($retType) {
         return @rets;
@@ -447,9 +447,9 @@ sub interface {
         _help( __PACKAGE__, "COMMANDS/interface - get or set interface" );
     }
 
-    if ( !defined($intf) ) {
-        if ( !defined( $PPC_GLOBALS->{interface} ) ) {
-            if ( !defined wantarray ) {
+    if ( not defined($intf) ) {
+        if ( not defined( $PPC_GLOBALS->{interface} ) ) {
+            if ( not defined wantarray ) {
                 _error("No interface currently set");
             }
             return;
@@ -464,7 +464,7 @@ sub interface {
 
         # Get interface
         my $interface = PPC::Interface->new($intf);
-        if ( !defined $interface ) {
+        if ( not defined $interface ) {
             _error( PPC::Interface->error );
         } else {
             $PPC_GLOBALS->{interface} = $interface;
@@ -490,12 +490,10 @@ sub interfaces {
     }
 
     my $retType = wantarray;
-    my @rets = PPC::Interface->interfaces;
+    my @rets    = PPC::Interface->interfaces;
 
-    if ( !defined $retType ) {
-        for (@rets) {
-            print "$_\n";
-        }
+    if ( not defined $retType ) {
+        print join "\n", @rets;
     } elsif ($retType) {
         return @rets;
     } else {
@@ -504,11 +502,10 @@ sub interfaces {
 }
 
 sub layer {
-    my ($mod, @stuff) = @_;
+    my ( $mod, @stuff ) = @_;
 
-    if ( !defined($mod) or ( $mod eq $PPC_GLOBALS->{help_cmd} ) ) {
-        _help( __PACKAGE__,
-            "COMMANDS/layer - Net::Frame::Layer:: alias" );
+    if ( not defined($mod) or ( $mod eq $PPC_GLOBALS->{help_cmd} ) ) {
+        _help( __PACKAGE__, "COMMANDS/layer - Net::Frame::Layer:: alias" );
     }
 
     my $prefix = 'Net::Frame::Layer::';
@@ -517,15 +514,17 @@ sub layer {
     # "arg u ment"
     my @parts = split /\s+/, $mod;
     $mod = shift @parts;
+
     # "arg" "u ment"
     my $trailer = '';
-    $trailer  = join " ", @parts;
+    $trailer = join " ", @parts;
+
     # add anthing else
     $trailer .= join " ", @stuff;
 
     my $useString = "use $prefix$mod $trailer";
     eval $useString;
-    if ( $@ ) {
+    if ($@) {
         PPC::Layer::_err_not_installed( $mod, "" );
     }
 
@@ -545,9 +544,10 @@ sub layer {
     }
 
     # create subs
-    for my $modName ( @mods ) {
+    for my $modName (@mods) {
         $modName =~ s/^$prefix//;
         no strict 'refs';
+
         # only if sub doesn't already exist
         if ( !__PACKAGE__->can($modName) ) {
             *{$modName} = sub {
@@ -556,15 +556,15 @@ sub layer {
                     my ($arg) = @_;
                     if ( $arg eq PPC::config('help_cmd') ) {
                         PPC::_help( __PACKAGE__, $modName,
-                            $prefix.$modName );
+                            $prefix . $modName );
                     }
                 }
                 my $p = PPC::Layer::_layer( $modName, @_ );
-                if ( !defined wantarray ) {
+                if ( not defined wantarray ) {
                     print $p->print . "\n";
                 }
                 return $p;
-            }
+              }
         }
     }
 }
@@ -572,17 +572,17 @@ sub layer {
 sub nftxt {
     my ($arg) = @_;
 
-    if ( !defined($arg) or ( $arg eq $PPC_GLOBALS->{help_cmd} ) ) {
+    if ( not defined($arg) or ( $arg eq $PPC_GLOBALS->{help_cmd} ) ) {
         _help( __PACKAGE__, "COMMANDS/nftxt - render Net::Frame syntax" );
     }
 
     # Net::Frame since can do individual layers or PPC::Packet
-    if ( ( ( ref $arg ) =~ /^Net::Frame::/ ) 
+    if (   ( ( ref $arg ) =~ /^Net::Frame::/ )
         or ( ( ref $arg ) =~ /^PPC::Packet$/ ) ) {
         my @layers;
 
         # Net::Frame::Simple or PPC::Packet to get all layers
-        if ( ( ( ref $arg ) =~ /^Net::Frame::Simple$/ ) 
+        if (   ( ( ref $arg ) =~ /^Net::Frame::Simple$/ )
             or ( ( ref $arg ) =~ /^PPC::Packet$/ ) ) {
             for ( $arg->layers ) { push @layers, $_ }
         } else {
@@ -642,14 +642,14 @@ sub nftxt {
 sub rdpcap {
     my ($file) = @_;
 
-    if ( !defined($file) or ( $file eq $PPC_GLOBALS->{help_cmd} ) ) {
+    if ( not defined($file) or ( $file eq $PPC_GLOBALS->{help_cmd} ) ) {
         _help( __PACKAGE__, "COMMANDS/rdpcap - read pcap file" );
     }
 
     my $retType = wantarray;
     my $err;
     my $pcap = Net::Pcap::pcap_open_offline( $file, \$err );
-    if ( !defined $pcap ) {
+    if ( not defined $pcap ) {
         _error("Cannot open file - `$file': $err");
     }
 
@@ -658,15 +658,14 @@ sub rdpcap {
 
     sub _sniff_read {
         my ( $user_data, $header, $packet ) = @_;
-        $packet
-          = PPC::Packet->new( raw => $packet, firstLayer => 'ETH' );
+        $packet = PPC::Packet->new( raw => $packet, firstLayer => 'ETH' );
         $packet->timestamp( $header->{tv_sec} . "." . $header->{tv_usec} );
         push @{$user_data}, $packet;
     }
 
     Net::Pcap::pcap_close($pcap);
 
-    if ( !defined($retType) ) {
+    if ( not defined($retType) ) {
         printf "Read %i packet%s\n", scalar @packets,
           ( scalar @packets > 1 ) ? "s" : "";
     } elsif ($retType) {
@@ -723,10 +722,8 @@ sub scripts {
         }
 
         my $retType = wantarray;
-        if ( !defined $retType ) {
-            for (@files) {
-                print "$_\n";
-            }
+        if ( not defined $retType ) {
+            print join "\n", @files;
         } elsif ($retType) {
             return @files;
         } else {
@@ -738,11 +735,11 @@ sub scripts {
 sub wrpcap {
     my ( $file, @packets ) = @_;
 
-    if ( !defined($file) or ( $file eq $PPC_GLOBALS->{help_cmd} ) ) {
+    if ( not defined($file) or ( $file eq $PPC_GLOBALS->{help_cmd} ) ) {
         _help( __PACKAGE__, "COMMANDS/wrpcap - write pcap file" );
     }
 
-    if ( !defined $packets[0] ) {
+    if ( not defined $packets[0] ) {
         _error("No packets to write");
     }
     my @pa;
@@ -752,12 +749,13 @@ sub wrpcap {
         @pa = map { $_ } @packets;
     }
 
-    if ( !defined $PPC_GLOBALS->{device} ) {
+    if ( not defined $PPC_GLOBALS->{device} ) {
         _error("No device currently set [required for pcap_open]");
     }
 
     my $retType = wantarray;
     my $err;
+
     # Windows only
     # my %devinfo;
     # my $pcap = Net::Pcap::pcap_open( $PPC_GLOBALS->{device},
@@ -765,7 +763,7 @@ sub wrpcap {
     my $pcap = Net::Pcap::pcap_open_dead( DLT_EN10MB, 65535 );
 
     my $dump;
-    if ( !defined( $dump = Net::Pcap::pcap_dump_open( $pcap, $file ) ) ) {
+    if ( not defined( $dump = Net::Pcap::pcap_dump_open( $pcap, $file ) ) ) {
         _error("Cannot write to file - `$file'");
     }
 
@@ -788,7 +786,7 @@ sub wrpcap {
     Net::Pcap::pcap_dump_close($dump);
     Net::Pcap::pcap_close($pcap);
 
-    if ( !defined($retType) ) {
+    if ( not defined($retType) ) {
         printf "Wrote $i packet%s\n", ( $i > 1 ) ? "s" : "";
     } else {
         return $i;
@@ -818,7 +816,7 @@ sub _error {
 sub _pcap_prefix {
     my ($arg) = @_;
 
-    if ( !defined $PPC_GLOBALS->{interface} ) {
+    if ( not defined $PPC_GLOBALS->{interface} ) {
         _error("No pcap_prefix currently set");
     }
 
@@ -828,7 +826,7 @@ sub _pcap_prefix {
     }
 
     if ( defined( $PPC_GLOBALS->{interface}->devicename ) ) {
-        if (!defined(
+        if (not defined(
                 my $d = device( $PPC_GLOBALS->{interface}->devicename )
             )
           ) {
@@ -847,11 +845,12 @@ sub _testpcap {
     my ($dev) = @_;
 
     my $err;
+
     # Windows only
     # my %devinfo;
     # my $pcap = Net::Pcap::pcap_open( $dev, 100, 0, 1000, \%devinfo, \$err );
     my $pcap = Net::Pcap::pcap_open_live( $dev, 100, 0, 1000, \$err );
-    if ( !defined($pcap) ) {
+    if ( not defined($pcap) ) {
         warn "Cannot open device - `$dev': $err\n";
         return 0;
     }
@@ -939,7 +938,7 @@ PPC configuration values:
   device      Device for Net::Pcap operations.    (none)
   errmode     'continue' - print error and try    stop
                 to continue
-              'stop' - print error and return 
+              'stop' - print error and return
                 prompt
               'debug' - print error, debug trace
                 and return prompt
@@ -965,7 +964,7 @@ for details.
 
  [$ret =] decode $packet [OPTIONS]
 
-Print decode of raw B<$packet>.  Returns object passed or B<PPC::Packet> 
+Print decode of raw B<$packet>.  Returns object passed or B<PPC::Packet>
 object if raw data is passed.
 
   Option     Description                       Default Value
@@ -986,8 +985,8 @@ with C<devices> command, for example:
 
 Called with no argument displays currently set device.
 
-This can be used to set a different outgoing device from the interface.  
-Note, the source and destination MAC and source IPv4 addresses may need 
+This can be used to set a different outgoing device from the interface.
+Note, the source and destination MAC and source IPv4 addresses may need
 to be set manually when constructing packets.
 
 =head2 devices - list devices
@@ -1012,22 +1011,22 @@ is read and then parsed at once.
   line       Parse file line-by-line (1 = on)  (off)
   verbose    Show file content       (1 = on)  (off)
 
-Current directory is searched unless relative or absolute path is also 
+Current directory is searched unless relative or absolute path is also
 provided.
 
-To pass parameters to a file the B<argv> option can contain a string such as 
-would be present on the command line if the file was called from the command 
-line.  For example, a script may take an option switch "-r" and a string 
-option for hostname such as "-h name".  The B<argv> option can be used as 
+To pass parameters to a file the B<argv> option can contain a string such as
+would be present on the command line if the file was called from the command
+line.  For example, a script may take an option switch "-r" and a string
+option for hostname such as "-h name".  The B<argv> option can be used as
 such:
 
   file "filename.txt", argv => "-h name -r";
 
-In "filename.txt", the arguments can be processed from @ARGV with standard 
-modules like B<Getopt::Long>.  See "scripts/IPv4-ICMPv4-EchoRequest.ppcs" for 
+In "filename.txt", the arguments can be processed from @ARGV with standard
+modules like B<Getopt::Long>.  See "scripts/IPv4-ICMPv4-EchoRequest.ppcs" for
 an example.
 
-Note the B<line> option should I<never> be used unless debugging or some 
+Note the B<line> option should I<never> be used unless debugging or some
 other strange and odd situation.
 
 Single option indicates B<file>.
@@ -1036,7 +1035,7 @@ Single option indicates B<file>.
 
  [$hex_array =] hexdump $var | "string"
 
-Displays hex dump of B<$var> or B<string>.  Optional return value is array 
+Displays hex dump of B<$var> or B<string>.  Optional return value is array
 of hexdump by offset (decimal index start at 0).
 
 =head2 interface - get or set interface
@@ -1047,7 +1046,7 @@ Sets the interface, source and destination MAC, source IPv4 (and IPv6 if
 available).  Also sets the device for Net::Pcap send.  B<Interface Name> is the
 friendly name found with C<ipconfig>, for example "Local Area Connection".
 Called with B<:dump> keyword, displays all current interface information.
-Called with no argument displays currently set interface name.  Optional return 
+Called with no argument displays currently set interface name.  Optional return
 value is B<PPC::Interface> object.
 
 =head2 interfaces - list available interfaces
@@ -1062,10 +1061,10 @@ List the available interfaces.
   layer 'NAME'
   layer 'NAME 1.01 qw(:consts)'
 
-Alias the trailing text 'NAME' after Net::Frame::Layer:: module to NAME so 
-it can be called as a layer without typing the full Net::Frame::Layer:: module 
-qualifier.  By default, all sub-modules of Net::Frame::Layer::NAME that are 
-imported in the 'use' are also aliased.  For example, if the above 
+Alias the trailing text 'NAME' after Net::Frame::Layer:: module to NAME so
+it can be called as a layer without typing the full Net::Frame::Layer:: module
+qualifier.  By default, all sub-modules of Net::Frame::Layer::NAME that are
+imported in the 'use' are also aliased.  For example, if the above
 example has a subtree:
 
   Net::Frame::Layer::NAME             => NAME
@@ -1079,8 +1078,8 @@ This command should not redefine any existing subs already defined.
 
  nftxt $packet
 
-Renders the B<Net::Frame> syntax for the object passed as $packet.  Object can 
-be a B<Net::Frame::Layer> object, a B<Net::Frame::Simple> or B<PPC::Packet> 
+Renders the B<Net::Frame> syntax for the object passed as $packet.  Object can
+be a B<Net::Frame::Layer> object, a B<Net::Frame::Simple> or B<PPC::Packet>
 packet.
 
 =head2 rdpcap - read pcap file
@@ -1088,16 +1087,16 @@ packet.
  $packets = rdpcap "file"
  @packets = rdpcap "file"
 
-Reads saved pcap file B<file> and returns packets as B<PPC::Packet> 
+Reads saved pcap file B<file> and returns packets as B<PPC::Packet>
 objects in reference to an array in scalar context or array in array context.
 
 =head2 scripts - execute scripts from script directory
 
  [@scripts =] scripts ["script"]
 
-Shortcut to B<file> command to open a script in the B<scripts_dir> directory 
-without having to provide the path.  Called with no argument lists contents 
-of scripts directory.  Optional return value is array of files in the 
+Shortcut to B<file> command to open a script in the B<scripts_dir> directory
+without having to provide the path.  Called with no argument lists contents
+of scripts directory.  Optional return value is array of files in the
 B<scripts_dir> directory.
 
 See B<file> for additional options, including passing parameters to a script.
@@ -1107,18 +1106,18 @@ See B<file> for additional options, including passing parameters to a script.
  [$packets =] wrpcap "file", @packets
 
 Writes array B<@packets> to B<file> in pcap format.  Packets may be an array,
-a reference to an array or a single scalar.  Packet format may be raw, 
-B<PPC::Packet> or B<Net::Frame::Simple> object.  Returns number of packets 
+a reference to an array or a single scalar.  Packet format may be raw,
+B<PPC::Packet> or B<Net::Frame::Simple> object.  Returns number of packets
 written.
 
 =head1 SEE ALSO
 
-L<PPC::Interface>, L<PPC::Layer>, L<PPC::Macro>, L<PPC::Packet>, 
+L<PPC::Interface>, L<PPC::Layer>, L<PPC::Macro>, L<PPC::Packet>,
 L<PPC::Packet::SRP>, L<PPC::Plugin> L<Net::Frame>, L<Net::Pcap>
 
 =head1 ACKNOWLEDGEMENTS
 
-Special thanks to Patrice E<lt>GomoRE<gt> Auffret without whose 
+Special thanks to Patrice E<lt>GomoRE<gt> Auffret without whose
 Net::Frame::[...] modules, this would not be possible.
 
 =head1 LICENSE
