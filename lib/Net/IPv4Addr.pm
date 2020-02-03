@@ -22,7 +22,7 @@ BEGIN {
     @EXPORT = qw();
 
     %EXPORT_TAGS = (
-		    all => [qw{ dec2ipv4
+		    all => [qw{ dec2ipv4 ipv42dec
 				ipv4_parse      ipv4_chkip
 				ipv4_network    ipv4_broadcast
 				ipv4_cidr2msk   ipv4_msk2cidr
@@ -144,6 +144,24 @@ sub int2ip {
 sub int2ipv4($) {
     my ($ip) = $_[0];
     return join '.', unpack 'C4', pack 'N', $ip;
+}
+
+sub ip2dec {
+    return ipv42int(@_);
+}
+
+sub ipv42dec {
+    return ipv42int(@_);
+}
+
+sub ip2int {
+    return ipv42int(@_);
+}
+
+sub ipv42int($) {
+    my ($ip) = $_[0];
+    my $int = __PACKAGE__->new($ip);
+    return $int->to_dec;
 }
 
 # Given an IPv4 address in host, ip/netmask or cidr format
@@ -459,6 +477,24 @@ Alias:
 =item B<dec2ip>
 
 =item B<dec2ipv4>
+
+=back
+
+=item ipv42int
+
+    print ipv42int('a.b.c.d');
+
+Return integer equivalent of IPv4 address provided.
+
+Alias:
+
+=over 4
+
+=item B<ip2int>
+
+=item B<ip2dec>
+
+=item B<ipv42dec>
 
 =back
 
