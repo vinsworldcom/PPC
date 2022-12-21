@@ -1,7 +1,7 @@
 Changes
 MANIFEST
 Makefile.PL
-README.txt
+README.md
 bin/ppc.pl
 lib/auto/Net/IPv4Addr/autosplit.ix
 lib/Net/Frame/Layer/ICMPv6/Option.diff
