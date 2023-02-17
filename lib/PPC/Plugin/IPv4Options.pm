@@ -20,6 +20,7 @@ our @EXPORT = qw(
   IPv4SSRR
   IPv4RR
   IPv4RTRALERT
+  makeIPv4Options
 );
 
 our @ISA = qw ( PPC Exporter );
@@ -291,6 +292,27 @@ sub IPv4RTRALERT {
     }
 }
 
+sub makeIPv4Options {
+    my (@opts) = @_;
+
+    my $optstring = join '', @opts;
+    my $len = length($optstring) % 4;
+    if ($len) {
+        my $padding = IPv4NOOP() x ( 4 - 1 - $len );
+        $optstring = $optstring . $padding . IPv4EOOL;
+    }
+
+    my $ret = $optstring;
+    my $retType = wantarray;
+
+    if ( !defined $retType ) {
+        print "$ret\n";
+        return;
+    } else {
+        return $ret;
+    }
+}
+
 # Install visual helper for Net::Frame::Layer::IPv4::print
 no warnings;
 no strict;
@@ -396,6 +418,11 @@ Record Route.
 =item B<IPv4RTRALERT> (#)
 
 IPv4 Router Alert.
+
+=item B<makeIPv4Options> (IPv4xxx, ...)
+
+Make an IPv4 option string of the correct length from the provided subroutines
+adding padding and EOOL as requried to fill out the correct length.
 
 =back
 
